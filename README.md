@@ -2,7 +2,7 @@
 
 This is a thin Java client for Draftable's [document comparison API](https://draftable.com/comparison-api).
 It wraps the available endpoints, and handles authentication and signing for you.
-The library is [available on Maven](https://mvnrepository.com/artifact/com.draftable.api.client/draftable-compare-api)
+The library is [available on Maven](http://mavenrepository.com/artifact/com.draftable.api.client/draftable-compare-api)
 with artifact ID `draftable-compare-api` (group ID `com.draftable.api.client`).
 
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
