@@ -124,6 +124,7 @@ public final class Comparison {
      * @param creationTime When the comparison was created.
      * @param expiryTime When the comparison expires, or null if it doesn't expire.
      * @param ready Whether the comparison has been processed.
+     * @param readyTime If the comparison is ready, the time at which it became ready.
      * @param failed Whether the comparison failed. Is null if the comparison hasn't been processed.
      * @param errorMessage If the comparison failed, gives an error message describing the failure. Null otherwise.
      */

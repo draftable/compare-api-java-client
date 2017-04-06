@@ -552,7 +552,7 @@ class RESTClient implements Closeable {
                 public boolean isStreaming() {
                     return multipartEntity.isStreaming();
                 }
-                @Override
+                @Deprecated
                 public void consumeContent() throws IOException {}
             }));
 

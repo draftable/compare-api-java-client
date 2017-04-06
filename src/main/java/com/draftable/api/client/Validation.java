@@ -41,9 +41,6 @@ class Validation {
     private static final int minimumIdentifierLength = 1;
     private static final int maximumIdentifierLength = 1024;
 
-    @Nonnull
-    private static final String validIdentifierCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._";
-
     static void validateIdentifier(@Nullable final String identifier) {
         if (identifier == null) {
             throw new IllegalArgumentException("`identifier` cannot be null");
