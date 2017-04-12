@@ -400,13 +400,15 @@ class RESTClient implements Closeable {
     @Nonnull
     static ContentBody buildContentBody(@Nonnull byte[] data) {
         // Note: We have to give a file name as the third parameter, but for our purposes it doesn't matter what the name is.
-        //       InputStreamBody has a null filename by default, so passing in `null` to the ByteArrayBody seems ideal. ~ James
-        return new ByteArrayBody(data, ContentType.APPLICATION_OCTET_STREAM, null);
+        //       (Django Rest Framework doesn't seem to like it if we don't give a file name, we need to pass one in here.) ~ James
+        return new ByteArrayBody(data, ContentType.APPLICATION_OCTET_STREAM, "filename");
     }
 
     @Nonnull
     static ContentBody buildContentBody(@Nonnull InputStream stream) {
-        return new InputStreamBody(stream, ContentType.APPLICATION_OCTET_STREAM);
+        // Note: We have to give a file name as the third parameter, but for our purposes it doesn't matter what the name is.
+        //       (Django Rest Framework doesn't seem to like it if we don't give a file name, we need to pass one in here.) ~ James
+        return new InputStreamBody(stream, ContentType.APPLICATION_OCTET_STREAM, "filename");
     }
 
     //endregion Static ContentBody builders - buildContentBody(File | byte[] | InputStream)
