@@ -174,7 +174,7 @@ public class Comparisons implements Closeable {
             comparison.has("expiry_time") ? Instant.parse(comparison.getString("expiry_time")) : null,
             ready,
             ready ? Instant.parse(comparison.getString("ready_time")) : null,
-            failed,
+            ready ? failed : null,
             failed ? comparison.getString("error_message") : null
         );
     }
