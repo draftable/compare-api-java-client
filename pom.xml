@@ -6,7 +6,7 @@
 
     <groupId>com.draftable.api.client</groupId>
     <artifactId>draftable-compare-api</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <name>Draftable Compare API Java Client</name>
     <description>Java client library for the Draftable document comparison API</description>
@@ -143,17 +143,17 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.2</version>
+            <version>[4.5.2,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
-            <version>4.1.3</version>
+            <version>[4.1.3,)</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.2</version>
+            <version>[4.5.2,)</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
