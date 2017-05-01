@@ -222,7 +222,7 @@ Exceptions are raised by `createComparison` in the following cases:
 
     File rightFile = new File(...);
 
-    Comparison comparison = comparisons.create(
+    Comparison comparison = comparisons.createComparison(
         Comparisons.Side.create("https://domain.com/path/to/left.pdf", "pdf"),
         Comparisons.Side.create(rightFile),
         // identifier: not specified, so Draftable will generate one
