@@ -220,28 +220,32 @@ Exceptions are raised by `createComparison` in the following cases:
 
 ###### Example usage
 
-    identifier = comparisons.generate_identifier(); # Generates a unique identifier.
-    
-    with open('path/to/right/file.docx', 'rb) as right_file:
+    File rightFile = new File(...);
 
-        comparison = comparisons.create(
-        
-            identifier = identifier,
-            
-            left = comparisons.side_from_url('https://domain.com/left.pdf', file_type='pdf', display_name='document.pdf'),
-            right = comparisons.side_from_file(right_file, file_type='docx', display_name='document (revised).docx'),
-            
-            # 'public' is omitted, because we only want to let authenticated users view the comparison.
+    Comparison comparison = comparisons.create(
+        Comparisons.Side.create("https://domain.com/path/to/left.pdf", "pdf"),
+        Comparisons.Side.create(rightFile),
+        // identifier: not specified, so Draftable will generate one
+        null,
+        // isPublic: false, so that the comparison is private
+        false,
+        // expires: 30 minutes in the future, so the comparison will be automatically deleted then
+        Instant.now().plus(Duration.ofMinutes(30))
+    );
 
-            # Comparison expires 30 minutes into the future.
-            expires: timedelta(minutes=30),
+    System.out.println("Created comparison: " + comparison);
 
-        )
-
-    print("Created comparison:", comparison);
-
-    # This generates a signed viewer URL that can be used to access the private comparison for the next 30 minutes.
-    print("Viewer URL (expires in 30 min):", comparisons.signed_viewer_url(identifier));
+    // This generates a signed viewer URL that can be used to access the private comparison for the next 10 minutes.
+    String viewerURL = comparisons.signedViewerURL(
+        // identifier: The identifier of the comparison
+        comparison.identifier,
+        // validUntil: The amount of time before the link expires
+        Duration.ofMinutes(10),
+        // wait: Whether the viewer should wait for a comparison with the given identifier to exist.
+        //       (This is simply `false` for normal usage.)
+        false
+    );
+    System.out.println("Viewer URL (expires in 10 min): " + viewerURL);
 
 
 
@@ -273,7 +277,13 @@ The comparison viewer will display a loading animation, waiting for the comparis
 
     CompletableFuture<Comparison> future = comparisons.createComparisonAsync(
         Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.pdf", "pdf"),
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.rtf", "pdf")
+        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.rtf", "pdf"),
+        // identifier: the identifier we just generated
+        identifier,
+        // isPublic: false, for a private comparison
+        false,
+        // expires: never expires
+        null
     );
 
     // At some point, we will have created the comparison.
