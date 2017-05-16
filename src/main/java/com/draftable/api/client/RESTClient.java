@@ -109,21 +109,14 @@ class RESTClient implements Closeable {
 
     @Nonnull
     private static CloseableHttpClient createClient() {
-        return HttpClients.createMinimal();
+        return HttpClients.createSystem();
     }
 
     @Nonnull
     private static CloseableHttpAsyncClient createAsyncClient() {
-        // We set up the async client in a similar fashion to Unirest's Java source.
-        // (See https://github.com/Mashape/unirest-java/blob/master/src/main/java/com/mashape/unirest/http/options/Options.java for reference.)
-        try {
-            CloseableHttpAsyncClient asyncClient = HttpAsyncClients.createMinimal(new PoolingNHttpClientConnectionManager(new DefaultConnectingIOReactor()));
-            asyncClient.start();
-            return asyncClient;
-        } catch (IOReactorException ex) {
-            // This should never occur.
-            throw new RuntimeException(ex);
-        }
+        CloseableHttpAsyncClient asyncClient = HttpAsyncClients.createSystem();
+        asyncClient.start();
+        return asyncClient;
     }
 
 
