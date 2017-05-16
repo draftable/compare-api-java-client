@@ -25,8 +25,8 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
 - Start creating comparisons:
     ```   
     Comparison comparison = comparisons.createComparison(
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.pdf", "pdf"),
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.rtf", "rtf")
+        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
+        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf")
     );
     
     System.out.println("Comparison created: " + comparison);
@@ -276,13 +276,13 @@ The comparison viewer will display a loading animation, waiting for the comparis
     String identifier = Comparisons.generateIdentifier();
 
     CompletableFuture<Comparison> future = comparisons.createComparisonAsync(
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.pdf", "pdf"),
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.rtf", "pdf"),
+        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
+        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf"),
         // identifier: the identifier we just generated
         identifier,
         // isPublic: false, for a private comparison
         false,
-        // expires: never expires
+        // expires: null, so the comparison will never expire
         null
     );
 
