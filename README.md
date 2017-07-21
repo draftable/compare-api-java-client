@@ -29,8 +29,10 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
         Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf")
     );
     
+    String viewerURL = comparisons.signedViewerURL(comparison.identifier, Duration.ofMinutes(30), false);
+
     System.out.println("Comparison created: " + comparison);
-    System.out.println("Viewer URL (expires in 30 min): " + comparisons.signedViewerURL(comparison.identifier)); 
+    System.out.println("Viewer URL (expires in 30 min): " + viewerURL);
     ```
 -----
 
