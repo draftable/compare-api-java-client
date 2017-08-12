@@ -308,6 +308,7 @@ The comparison viewer will display a loading animation, waiting for the comparis
 ### Proxying and advanced configuration
 
 The underlying `httpclient` and `httpasyncclient` objects are configured to respect system properties. The full list of options considered are given in the [Apache HttpClient documentation](http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html). These options allow configuring the use of a proxy server, as well as other request parameters.
+
 -----
 
 That's it! Please report issues you encounter, and we'll work quickly to resolve them. Contact us at [support@draftable.com](mailto://support@draftable.com) if you need assistance.
