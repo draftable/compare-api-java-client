@@ -29,19 +29,25 @@ import java.util.concurrent.CompletionException;
 public class Comparisons implements Closeable {
 
     //region Private: URLs
+    @Nonnull public static final String defaultApiBase = "https://api.draftable.com/v1";
 
     private static class URLs {
-        @Nonnull private static final String apiBase = "https://api.draftable.com/v1";
+        @Nonnull final String apiBase;
 
-        @Nonnull static final String comparisons = apiBase + "/comparisons";
+        @Nonnull final String comparisons;
+
+        public URLs(@Nonnull String apiBase) {
+            this.apiBase = apiBase;
+            this.comparisons = this.apiBase + "/comparisons";
+        }
 
         @Nonnull
-        static String comparison(@Nonnull String identifier) {
+        String comparison(@Nonnull String identifier) {
             return comparisons + "/" + identifier;
         }
 
         @Nonnull
-        static String comparisonViewer(@Nonnull String accountId, @Nonnull String identifier) {
+        String comparisonViewer(@Nonnull String accountId, @Nonnull String identifier) {
             return comparisons + "/viewer/" + accountId + "/" + identifier;
         }
     }
@@ -109,6 +115,7 @@ public class Comparisons implements Closeable {
 
     @Nonnull private final String accountId;
     @Nonnull private final String authToken;
+    @Nonnull private final URLs urls;
     @Nonnull private final RESTClient client;
 
     //endregion Private fields - accountId, authToken, client
@@ -121,11 +128,23 @@ public class Comparisons implements Closeable {
      * @param authToken The auth token for the account. This is located in your <a href="https://api.draftable.com/account">account console</a>.
      */
     public Comparisons(@Nonnull String accountId, @Nonnull String authToken) {
+        this(accountId, authToken, null);
+    }
+
+    /**
+     * Constructs a {@link Comparisons} instance for the given credentials and apiBaseUrl, which can then be used to make API requests.
+     * @param accountId The account ID to make requests for. This is located in your <a href="https://api.draftable.com/account">account console</a>.
+     * @param authToken The auth token for the account. This is located in your <a href="https://api.draftable.com/account">account console</a>.
+     * @param apiBaseUrl The base API URL. If null, use the default Draftable cloud API URL. The URL must have the protocol (e.g. "https") and end in "v1"
+     *                   with no trailing slash, e.g. "https://api.draftable.com/v1"
+     */
+    public Comparisons(@Nonnull String accountId, @Nonnull String authToken, @Nullable String apiBaseUrl) {
         Validation.validateAccountId(accountId);
         Validation.validateAuthToken(authToken);
 
         this.accountId = accountId;
         this.authToken = authToken;
+        this.urls = new URLs(apiBaseUrl == null ? defaultApiBase : apiBaseUrl);
 
         client = new RESTClient(authToken);
     }
@@ -210,7 +229,7 @@ public class Comparisons implements Closeable {
     @Nonnull
     public List<Comparison> getAllComparisons() throws IOException, InvalidAuthenticationException, UnknownErrorException {
         try {
-            return comparisonListFromJSONResponse(client.get(URLs.comparisons));
+            return comparisonListFromJSONResponse(client.get(urls.comparisons));
         } catch (IOException ex) {
             throw ex;
         } catch (RESTClient.HTTPInvalidAuthenticationException ex) {
@@ -226,7 +245,7 @@ public class Comparisons implements Closeable {
      */
     @Nonnull
     public CompletableFuture<List<Comparison>> getAllComparisonsAsync() {
-        return client.getAsync(URLs.comparisons).thenApply(Comparisons::comparisonListFromJSONResponse).exceptionally(error -> {
+        return client.getAsync(urls.comparisons).thenApply(Comparisons::comparisonListFromJSONResponse).exceptionally(error -> {
             if (error instanceof CompletionException) {
                 // Errors seem to be wrapped in a CompletionException - perhaps all the time, or perhaps only when one is thrown when
                 // executing a callback. We check for them just to be safe, and unwrap them to get the cause.
@@ -263,7 +282,7 @@ public class Comparisons implements Closeable {
     public Comparison getComparison(@Nonnull String identifier) throws ComparisonNotFoundException, IOException, InvalidAuthenticationException, UnknownErrorException {
         Validation.validateIdentifier(identifier);
         try {
-            return comparisonFromJSONResponse(client.get(URLs.comparison(identifier)));
+            return comparisonFromJSONResponse(client.get(urls.comparison(identifier)));
         } catch (RESTClient.HTTP404NotFoundException ex) {
             throw new ComparisonNotFoundException(accountId, identifier);
         } catch (IOException ex) {
@@ -283,7 +302,7 @@ public class Comparisons implements Closeable {
     @Nonnull
     public CompletableFuture<Comparison> getComparisonAsync(@Nonnull String identifier) {
         Validation.validateIdentifier(identifier);
-        return client.getAsync(URLs.comparison(identifier)).thenApply(Comparisons::comparisonFromJSONResponse).exceptionally(error -> {
+        return client.getAsync(urls.comparison(identifier)).thenApply(Comparisons::comparisonFromJSONResponse).exceptionally(error -> {
             if (error instanceof CompletionException) {
                 // Errors seem to be wrapped in a CompletionException - perhaps all the time, or perhaps only when one is thrown when
                 // executing a callback. We check for them just to be safe, and unwrap them to get the cause.
@@ -321,7 +340,7 @@ public class Comparisons implements Closeable {
     public void deleteComparison(@Nonnull String identifier) throws ComparisonNotFoundException, IOException, InvalidAuthenticationException, UnknownErrorException {
         Validation.validateIdentifier(identifier);
         try {
-            client.delete(URLs.comparison(identifier));
+            client.delete(urls.comparison(identifier));
         } catch (RESTClient.HTTP404NotFoundException ex) {
             throw new ComparisonNotFoundException(accountId, identifier);
         } catch (IOException ex) {
@@ -341,7 +360,7 @@ public class Comparisons implements Closeable {
     @Nonnull
     public CompletableFuture<Void> deleteComparisonAsync(@Nonnull String identifier) {
         Validation.validateIdentifier(identifier);
-        return client.deleteAsync(URLs.comparison(identifier)).exceptionally(error -> {
+        return client.deleteAsync(urls.comparison(identifier)).exceptionally(error -> {
             if (error instanceof CompletionException) {
                 // Errors seem to be wrapped in a CompletionException - perhaps all the time, or perhaps only when one is thrown when
                 // executing a callback. We check for them just to be safe, and unwrap them to get the cause.
@@ -725,7 +744,7 @@ public class Comparisons implements Closeable {
 
         try {
             return comparisonFromJSONResponse(
-                    client.post(URLs.comparisons, getComparisonsPostParameters(left, right, identifier, isPublic, expires), getComparisonsPostContent(left, right)));
+                    client.post(urls.comparisons, getComparisonsPostParameters(left, right, identifier, isPublic, expires), getComparisonsPostContent(left, right)));
         } catch (RESTClient.HTTP400BadRequestException ex) {
             throw new BadRequestException(ex.getMessage());
         } catch (IOException ex) {
@@ -767,7 +786,7 @@ public class Comparisons implements Closeable {
             Validation.validateExpires(expires);
         }
 
-        return client.postAsync(URLs.comparisons, getComparisonsPostParameters(left, right, identifier, isPublic, expires), getComparisonsPostContent(left, right))
+        return client.postAsync(urls.comparisons, getComparisonsPostParameters(left, right, identifier, isPublic, expires), getComparisonsPostContent(left, right))
                      .thenApply(Comparisons::comparisonFromJSONResponse).exceptionally(error -> {
             if (error instanceof CompletionException) {
                 // Errors seem to be wrapped in a CompletionException - perhaps all the time, or perhaps only when one is thrown when
@@ -805,7 +824,7 @@ public class Comparisons implements Closeable {
     @Nonnull
     public String publicViewerURL(@Nonnull final String identifier, final boolean wait) {
         Validation.validateIdentifier(identifier);
-        return URLs.comparisonViewer(accountId, identifier) + (wait ? "?wait" : "");
+        return urls.comparisonViewer(accountId, identifier) + (wait ? "?wait" : "");
     }
 
     @Nonnull
@@ -825,7 +844,7 @@ public class Comparisons implements Closeable {
         Validation.validateValidUntil(validUntil);
 
         try {
-            return new URIBuilder(URLs.comparisonViewer(accountId, identifier))
+            return new URIBuilder(urls.comparisonViewer(accountId, identifier))
                     .addParameter("valid_until", Long.toString(validUntil.getEpochSecond()))
                     .addParameter("signature", Utils.getViewerURLSignature(accountId, authToken, identifier, validUntil))
                     .toString() + (wait ? "&wait" : "");
