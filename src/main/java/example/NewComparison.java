@@ -1,3 +1,13 @@
+/**
+ * Example program that creates a new comparison using the cloud API between two documents
+ * identified by either local file path or URL, and prints a viewer URL to the console.
+ *
+ * Usage:
+ *
+ *     $ ACCOUNT_ID=XXX AUTH_TOKEN=YYY java NewComparison ./doc/version-1.pdf ./docs/version-2.docx
+ *
+ * See `usage() below or run without arguments for more.
+ */
 package example;
 
 import com.draftable.api.client.Comparison;
@@ -11,24 +21,24 @@ import java.time.Duration;
 public class NewComparison {
 
     public static void main(String[] args) {
-        String accountId = System.getenv("ACCOUNT_ID"); //args[0]; // from https://api.draftable.com/account/credentials under "Account ID"
-        String authToken = System.getenv("AUTH_TOKEN"); //args[1]; // from the same page, under "Auth Token"
-        String baseUrl = System.getenv("BASE_URL"); // args.length > 4 ? args[4] : null;
+        String accountId = System.getenv("ACCOUNT_ID"); // From https://api.draftable.com/account/credentials under "Account ID"
+        String authToken = System.getenv("AUTH_TOKEN"); // From the same page, under "Auth Token"
+        String baseUrl = System.getenv("BASE_URL"); // Omit this to use normal cloud API
 
         if (accountId == null || accountId.trim().isEmpty()) {
-            dieUsage("ACCOUNT_ID missing. See https://api.draftable.com/account/credentials");
+            usage("ACCOUNT_ID missing. See https://api.draftable.com/account/credentials");
         }
 
         if (authToken == null || authToken.trim().isEmpty()) {
-            dieUsage("AUTH_TOKEN missing. See https://api.draftable.com/account/credentials");
+            usage("AUTH_TOKEN missing. See https://api.draftable.com/account/credentials");
         }
 
         if (baseUrl != null && !baseUrl.startsWith("http")) {
-            dieUsage("BASE_URL specified but does not start with http(s)");
+            usage("BASE_URL specified but does not start with http(s)");
         }
 
         if (args.length < 2) {
-            dieUsage("Specify two (left then right) file-or-url paths");
+            usage("Specify two (left then right) file-or-url paths");
         }
 
         Comparisons comparisons = new Comparisons(accountId, authToken, baseUrl);
@@ -46,7 +56,7 @@ public class NewComparison {
         }
     }
 
-    private static void dieUsage(String error) {
+    private static void usage(String error) {
         System.err.println("usage: NewComparison <left-url-or-path> <right-url-or-path>\n");
         System.err.println("Set the following environment:");
         System.err.println("  ACCOUNT_ID=<account id from https://api.draftable.com/account/credentials under 'Account ID'");
