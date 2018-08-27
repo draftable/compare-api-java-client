@@ -6,6 +6,9 @@
  *
  *     $ ACCOUNT_ID=XXX AUTH_TOKEN=YYY java NewComparison ./doc/version-1.pdf ./docs/version-2.docx
  *
+ * For self-hosted installations, also provide the BASE_URL environment variable, which
+ * will look like `https://your-url-or-ip-address/api/v1` -- with no trailing slash.
+ *
  * See `usage() below or run without arguments for more.
  */
 package example;
@@ -16,6 +19,8 @@ import com.draftable.api.client.Comparisons.Side;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 public class NewComparison {
@@ -82,9 +87,10 @@ public class NewComparison {
             return Side.create(urlOrPath, extension);
         }
 
-        // Use this to show loading a byte array
-        //byte[] fileContent = Files.readAllBytes(file.toPath());
+        // Uncomment this version to load content as a byte array
+        return Side.create(Files.readAllBytes(Paths.get(urlOrPath)), extension);
 
-        return Side.create(new File(urlOrPath), extension);
+        // Uncomment this version to load content as a File object
+        //return Side.create(new File(urlOrPath), extension);
     }
 }
