@@ -4,7 +4,7 @@
  *
  * Usage:
  *
- *     $ ACCOUNT_ID=XXX AUTH_TOKEN=YYY java NewComparison ./doc/version-1.pdf ./docs/version-2.docx
+ *     $ ACCOUNT_ID=XXX AUTH_TOKEN=YYY java NewComparison ./doc/version-1.pdf ./docs/version-2.pdf
  *
  * For self-hosted installations, also provide the BASE_URL environment variable, which
  * will look like `https://your-url-or-ip-address/api/v1` -- with no trailing slash.
@@ -39,7 +39,7 @@ public class NewComparison {
         }
 
         if (baseUrl != null && !baseUrl.startsWith("http")) {
-            usage("BASE_URL specified but does not start with http(s)");
+            usage("BASE_URL specified but does not start with http/https");
         }
 
         if (args.length < 2) {

@@ -206,7 +206,7 @@ It has no return value, and raises `Comparisons.ComparisonNotFoundException` if 
 
 `Comparisons` provides `createComparison(left, right, [identifier, isPublic, expires])`, which returns a `Comparison` object representing the newly created comparison.
 
-For a complete, runnable example that creates a new comparison, see file [NewComparison.java](src/main/java/example/NewComparison.java).
+For a complete, runnable example that creates a new comparison, see file [NewComparison.java](example/NewComparison.java).
 
 ###### Creation options
 
