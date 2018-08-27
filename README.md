@@ -7,7 +7,7 @@ with artifact ID `draftable-compare-api` (group ID `com.draftable.api.client`).
 
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
 
-### Getting started
+### Getting started - Cloud API
 
 - Sign up for free at [api.draftable.com](https://api.draftable.com) to get your credentials.
 
@@ -34,6 +34,22 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
     System.out.println("Comparison created: " + comparison);
     System.out.println("Viewer URL (expires in 30 min): " + viewerURL);
     ```
+
+### Getting started - Enterprise self-hosted
+
+- Your system administrator will provide you with the URL to complete setting up your
+  account on your locally installed version of Draftable.
+
+- Once you log in, navigate to the API explorer - the URL will be something like
+  https://draftable.your.com/api/api-explorer - and experiment with the API there.
+
+- To start making API calls, make a note of your account credentials from the API explorer page
+  or the account credentials page, which have a URL like https://draftable.your.com/account/credientials
+
+- In particular, make a note of the base URL, which will be something like https://draftable.your.com/api/v1
+  with no trailing slash at the end.
+
+
 -----
 
 # Client API
@@ -46,13 +62,13 @@ The only other dependency is on `org.json`.
 
 ###### Synchronous and asynchronous requests
 
-All requests can be made synchronously or asynchronously (using the methods suffixed with `Async`, e.g. `getAllComparisonsAsync()`). 
+All requests can be made synchronously or asynchronously (using the methods suffixed with `Async`, e.g. `getAllComparisonsAsync()`).
 All asynchronous methods return `CompletableFuture` instances that will either complete successfully,
 or with one of the exceptions documented for the synchronous version.
 
 As an example, in normal usage `getAllComparisons()` will only ever throw an `IOException`.
 So `getComparisonsAsync()` will only fail with an `IOException`. Here's an example of asynchronously handling the result:
-    
+
     CompletableFuture<List<Comparison>> allComparisonsFuture = comparisons.getAllComparisonsAsync();
 
     allComparisonsFuture.whenComplete((allComparisonsList, error) -> {
@@ -89,30 +105,41 @@ If you `close()` it prematurely, further requests will reopen the underlying HTT
 
 The package `draftable-compare-api` provides a module, `com.draftable.api.client`, which provides two classes, `Comparisons` and `Comparison`.
 
-To construct an API client, use `new Comparisons(String accountId, String authToken)`.
-The `Comparisons` instance lets you manage your account's comparisons (creating new comparisons, and getting/deleting existing comparisons).
-Instances of `Comparison` are returned by API methods, and provide metadata for a given comparison.
+An instance of `Comparisons` lets you create new comparisons, retrieve all or specific comparisons, and delete specific comparisons.
 
-So, we'll assume you set things up as follows:
+Instances of `Comparison` are returned by methods, and provide metadata for a given comparison.
+
+Accessing the Draftable cloud API requires only the account ID and auth token. Create an instance of `Comparisons` like this:
 
     import com.draftable.api.client.Comparisons;
     import com.draftable.api.client.Comparison;
     ...
-    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>)
+    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>);
+
+Enterprise self-hosted users need to provide the base URL as a third parameter, like this:
+
+    import com.draftable.api.client.Comparisons;
+    import com.draftable.api.client.Comparison;
+    ...
+    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>, "http://draftable.your.com/api/v1");
+
 
 ### Getting comparisons
 
-`Comparisons` provides `getAllComparisons()` and `getComparison(String identifier)`.
+The `Comparisons` instance provides methods:
+
 - `getAllComparisons()` returns a `List<Comparison>` giving metadata for _all your comparisons_, ordered from newest to oldest. This is a potentially expensive operation.
+
 - `getComparison(String identifier)` returns a single `Comparison` object, or raises `Comparisons.ComparisonNotFoundException` if there isn't a comparison with that identifier.
 
 ###### Comparison objects
 
 `Comparison` objects have the following properties:
+
 - `identifier`: a `String` giving the identifier.
 - `left`, `right`: `Comparison.Side` objects giving information about each side, with properties:
     - `fileType`: the file extension.
-    - `sourceURL`  _(optional)_: if the file was specified as a URL, this will be a string with the URL. Otherwise, `null`. 
+    - `sourceURL`  _(optional)_: if the file was specified as a URL, this will be a string with the URL. Otherwise, `null`.
     - `displayName` _(optional)_: the display name, if one was given. Otherwise, `null`.
 - `isPublic`: a `boolean` giving whether the comparison is public, or requires authentication to view.
 - `creationTime`: an `Instant` giving when the comparison was created.
@@ -125,6 +152,8 @@ If a `Comparison` is `ready` (i.e. it has been processed and is ready for displa
 - `errorMessage` _(only present if `failed`)_: a string providing the developer with the reason the comparison failed.
 
 ###### Example usage
+
+The following snippet retrieves a specific comparison and prints key data to the console:
 
     String identifier = "<identifier>";
     
@@ -159,7 +188,7 @@ If a `Comparison` is `ready` (i.e. it has been processed and is ready for displa
 
 `Comparisons` provides `deleteComparison(String identifier)`, which attempts to delete the comparison with that identifier.
 
-It has no return value, and raises `Comparisons.ComparisonNotFoundException` if there isn't a comparison with that identifier. 
+It has no return value, and raises `Comparisons.ComparisonNotFoundException` if there isn't a comparison with that identifier.
 
 ###### Example usage
 
@@ -176,6 +205,8 @@ It has no return value, and raises `Comparisons.ComparisonNotFoundException` if 
 ### Creating comparisons
 
 `Comparisons` provides `createComparison(left, right, [identifier, isPublic, expires])`, which returns a `Comparison` object representing the newly created comparison.
+
+For a complete, runnable example that creates a new comparison, see file [NewComparison.java](src/main/java/example/NewComparison.java).
 
 ###### Creation options
 
@@ -199,7 +230,7 @@ The full set of overloads are documented in javadoc, but here are the main ones:
     - Specifies a file via a URL. You must give a fully qualified URL from which Draftable can download the file.
     - `fileType` is required, given as the file extension
     - `displayName` is an optional name for the file, to be shown in the comparison
-    
+
 - `Comparisons.Side.create(file, fileType, [displayName])`
     - Specifies a file to be uploaded in the request. You can provide a `File`, byte array, or `InputStream`.
     - `fileType` and `displayName` are as before.
