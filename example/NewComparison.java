@@ -19,6 +19,8 @@ import com.draftable.api.client.Comparisons.Side;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -74,8 +76,13 @@ public class NewComparison {
         System.exit(1);
     }
 
-    private static String getExtension(String path) {
-        return path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : "";
+    private static String getExtension(String path) throws MalformedURLException {
+        // handle the case that the URL has query strings, e.g. "http://foo.bar/baz/honk.doc?t=1234"
+        if (path.startsWith("http")) {
+            URL url = new URL(path);
+            path = url.getPath();
+        }
+        return path.contains(".") ? path.substring(path.lastIndexOf('.') + 1).toLowerCase() : "";
     }
 
     private static Side createSide(String urlOrPath) throws IOException {
