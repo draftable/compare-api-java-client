@@ -1,4 +1,10 @@
 {
+    // File paths to language mappings
+    "files.associations": {
+        // Eclipse preferences
+        "*.prefs": "properties"
+    },
+
     // Important to disable for EditorConfig to apply correctly
     // See: https://github.com/editorconfig/editorconfig-vscode/issues/153
     "files.trimTrailingWhitespace": false
