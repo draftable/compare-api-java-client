@@ -122,6 +122,8 @@ Enterprise self-hosted users need to provide the base URL as a third parameter, 
     import com.draftable.api.client.Comparison;
     ...
     Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>, "http://draftable.your.com/api/v1");
+	
+Note: When communicating with a local Self-Hosted deployment, you may hit SSL errors. You can easily bypass them, take a look at `SetupIgnoreSSLCheck` method in the Test project. It will cause your process to ignore SSL errors. Be careful though, you should never use that approach in production, instead you should properly install SSL certificate in the client machine.
 
 
 ### Getting comparisons

@@ -6,8 +6,8 @@
 
     <groupId>com.draftable.api.client</groupId>
     <artifactId>draftable-compare-api</artifactId>
+    <packaging>pom</packaging>
     <version>1.0.4</version>
-
     <name>Draftable Compare API Java Client</name>
     <description>Java client library for the Draftable document comparison API</description>
     <url>https://github.com/draftable/compare-api-java-client</url>
@@ -75,6 +75,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <release>10</release>
                 </configuration>
             </plugin>
             <plugin>
@@ -116,20 +117,23 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-                <version>1.6</version>
-                <executions>
-                    <execution>
-                        <id>sign-artifacts</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>sign</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
+            <!-- No need to sign our library when in dev -->
+
+<!--            <plugin>  -->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-gpg-plugin</artifactId>-->
+<!--                <version>1.6</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>sign-artifacts</id>-->
+<!--                        <phase>verify</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>sign</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 
