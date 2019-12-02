@@ -1,347 +1,311 @@
-# Draftable Compare API - Java Client Library
+Draftable Compare API - Java Client Library
+===========================================
 
-This is a thin Java client for Draftable's [document comparison API](https://draftable.com/comparison-api).
-It wraps the available endpoints, and handles authentication and signing for you.
-The library is [available on Maven](http://mavenrepository.com/artifact/com.draftable.api.client/draftable-compare-api)
-with artifact ID `draftable-compare-api` (group ID `com.draftable.api.client`).
+A thin Java client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
-See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other references.
+See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other reference material.
 
-### Getting started - Cloud API
+Requirements
+------------
 
-- Sign up for free at [api.draftable.com](https://api.draftable.com) to get your credentials.
+- Operating system: Any maintained Linux, macOS, or Windows release
+- Java runtime: Java SE 8+ or compatible implementation
 
-- Add `draftable-compare-api` to your project's dependencies.
+Getting started
+---------------
 
-- Instantiate the client:
-    ```
-    import com.draftable.api.client.Comparisons;
-    import com.draftable.api.client.Comparisons.Side;
-    import com.draftable.api.client.Comparison;
-    ...
-    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>);
-    ```
+- Create a free [API account](https://api.draftable.com)
+- Retrieve your [credentials](https://api.draftable.com/account/credentials)
+- Add the [draftable-compare-api](https://search.maven.org/search?q=a:draftable-compare-api) library
+- Instantiate a client
 
-- Start creating comparisons:
-    ```   
-    Comparison comparison = comparisons.createComparison(
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf")
-    );
-    
-    String viewerURL = comparisons.signedViewerURL(comparison.identifier, Duration.ofMinutes(30), false);
+```java
+import com.draftable.api.client.Comparisons;
+import com.draftable.api.client.Comparisons.Side;
+import com.draftable.api.client.Comparison;
 
-    System.out.println("Comparison created: " + comparison);
-    System.out.println("Viewer URL (expires in 30 min): " + viewerURL);
-    ```
+Comparisons comparisons = new Comparisons("<yourAccountId>", "<yourAuthToken>");
+```
 
-### Getting started - Enterprise self-hosted
+- Start creating comparisons
 
-- Your system administrator will provide you with the URL to complete setting up your
-  account on your locally installed version of Draftable.
+```java
+Comparison comparison = comparisons.createComparison(
+    Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
+    Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf")
+);
+System.out.println(String.format("Comparison created: %s", comparison));
 
-- Once you log in, navigate to the API explorer - the URL will be something like
-  https://draftable.your.com/api/api-explorer - and experiment with the API there.
+// Generate a signed viewer URL to access the private comparison. The expiry
+// time defaults to 30 minutes if the validUntil parameter is not provided.
+String viewerURL = comparisons.signedViewerURL(comparison.identifier, Duration.ofMinutes(30), false);
+System.out.println(String.format("Viewer URL (expires in 30 mins): %s", viewerURL));
+```
 
-- To start making API calls, make a note of your account credentials from the API explorer page
-  or the account credentials page, which have a URL like https://draftable.your.com/account/credentials
-
-- In particular, make a note of the base URL, which will be something like https://draftable.your.com/api/v1
-  with no trailing slash at the end.
-
-
------
-
-# Client API
-
-### Dependencies
-The client depends on `org.apache.httpcomponents` (in particular, `httpclient`, `httpasyncclient`, and `httpmime` are used to make API requests).
-The only other dependency is on `org.json`.
+API reference
+-------------
 
 ### Design notes
 
-###### Synchronous and asynchronous requests
+#### Exceptions and error handling
 
-All requests can be made synchronously or asynchronously (using the methods suffixed with `Async`, e.g. `getAllComparisonsAsync()`).
-All asynchronous methods return `CompletableFuture` instances that will either complete successfully,
-or with one of the exceptions documented for the synchronous version.
+Method calls immediately validate parameters. Parameter validation failures throw `IllegalArgumentException`.
 
-As an example, in normal usage `getAllComparisons()` will only ever throw an `IOException`.
-So `getComparisonsAsync()` will only fail with an `IOException`. Here's an example of asynchronously handling the result:
+Java exceptions are categorised as either checked or unchecked. In this library:
 
-    CompletableFuture<List<Comparison>> allComparisonsFuture = comparisons.getAllComparisonsAsync();
+- I/O failures (e.g. network connectivity) throw a checked `IOException`.
+- Unchecked exceptions may be thrown as documented in _Javadoc_ and below.
 
-    allComparisonsFuture.whenComplete((allComparisonsList, error) -> {
-        if (error != null) {
-            // CompletableFuture wraps errors in a CompletionException.
-            assert error instanceof CompletionException;
-            // The CompletionException's cause should be an IOException.
-            assert error.getCause() instanceof IOException;
-            
-            // Handle the IOException here.
-            
-        } else {
-            assert allComparisonsList != null;
-            // Handle the result here.
-        }
-    }
+In practice, while you may elect to handle unchecked exceptions, it should be possible to write your application such that they're never thrown.
 
-###### Errors and error handling
+#### Synchronous and asynchronous requests
 
-The API is designed such that _requests should always succeed_ and _comparisons should always succeed_ in production. This means:
-- Exceptions when making requests will only occur upon network failure, or when you provide invalid credentials or data.
-- Comparisons will only fail when the files are unreadable, or exceed your account's size limits.
+- Requests may be made synchronously, or asynchronously using the methods suffixed with `Async`.
+- Asynchronous methods return a `CompletableFuture`, which when awaited, will complete successfully or throw an exception.
 
-As such, `IOException` is the only checked exception that request methods throw.
-Methods will also throw other unchecked exceptions, as documented in javadoc and below.
-You may choose to handle these unchecked exceptions, but you should be able to write your application so that they're never thrown.
+#### Thread safety
 
-###### Thread safety
-
-The API client class, `Comparisons`, is completely thread-safe.
-If you `close()` it prematurely, further requests will reopen the underlying HTTP clients.
+The API client class, `Comparisons`, is thread-safe. If `close()` is called prematurely future requests will re-open the underlying HTTP clients.
 
 ### Initializing the client
 
-The package `draftable-compare-api` provides a module, `com.draftable.api.client`, which provides two classes, `Comparisons` and `Comparison`.
+The package provides a module, `com.draftable.api.client`, with which a `Comparisons` instance can be created for your API account.
 
-An instance of `Comparisons` lets you create new comparisons, retrieve all or specific comparisons, and delete specific comparisons.
+`Comparisons` provides methods to manage the comparisons for your API account and return individual `Comparison` objects.
 
-Instances of `Comparison` are returned by methods, and provide metadata for a given comparison.
+Creating a `Comparisons` instance differs slightly based on the API endpoint being used:
 
-Accessing the Draftable cloud API requires only the account ID and auth token. Create an instance of `Comparisons` like this:
+```java
+import com.draftable.api.client.Comparisons;
+import com.draftable.api.client.Comparison;
 
-    import com.draftable.api.client.Comparisons;
-    import com.draftable.api.client.Comparison;
-    ...
-    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>);
+// Draftable API (default endpoint)
+Comparisons comparisons = new Comparisons(
+    "<yourAccountId>",  // Replace with your API credentials from:
+    "<yourAuthToken>"   // https://api.draftable.com/account/credentials
+);
 
-Enterprise self-hosted users need to provide the base URL as a third parameter, like this:
+// Draftable API regional endpoint or Self-hosted
+Comparisons comparisons = new Comparisons(
+    "<yourAccountId>",  // Replace with your API credentials from the regional
+    "<yourAuthToken>",  // Draftable API endpoint or your Self-hosted container
+    'https://draftable.example.com/api/v1'  // Replace with the endpoint URL
+);
+```
 
-    import com.draftable.api.client.Comparisons;
-    import com.draftable.api.client.Comparison;
-    ...
-    Comparisons comparisons = new Comparisons(<your account ID>, <your auth token>, "http://draftable.your.com/api/v1");
-	
-Note: When communicating with a local Self-Hosted deployment, you may hit SSL errors. You can easily bypass them, take a look at `SetupIgnoreSSLCheck` method in the Test project. It will cause your process to ignore SSL errors. Be careful though, you should never use that approach in production, instead you should properly install SSL certificate in the client machine.
+The `Comparisons` instance can be closed by calling `close()`.
 
+For API Self-hosted you may need to [suppress TLS certificate validation](#self-signed-certificates) if the server is using a self-signed certificate (the default).
 
-### Getting comparisons
+### Retrieving comparisons
 
-The `Comparisons` instance provides methods:
+- `getAllComparisons()`  
+  Returns a `List<Comparison>` of all your comparisons, ordered from newest to oldest. This is potentially an expensive operation.
+- `getComparison(String identifier)`  
+  Returns the specified `Comparison` or raises a `Comparisons.ComparisonNotFoundException` exception if the specified comparison identifier does not exist.
 
-- `getAllComparisons()` returns a `List<Comparison>` giving metadata for _all your comparisons_, ordered from newest to oldest. This is a potentially expensive operation.
+`Comparison` objects have the following getter methods:
 
-- `getComparison(String identifier)` returns a single `Comparison` object, or raises `Comparisons.ComparisonNotFoundException` if there isn't a comparison with that identifier.
+- `getIdentifier(): String`  
+  The unique identifier of the comparison
+- `getLeft(): Comparison.Side` / `getRight(): Comparison.Side`  
+  Information about each side of the comparison
+  - `getFileType(): String`  
+    The file extension
+  - `getSourceURL(): String`  
+    The URL for the file if the original request was specified by URL, otherwise `null`
+  - `getDisplayName(): String`  
+    The display name for the file if given in the original request, otherwise `null`
+- `getIsPublic(): boolean`  
+  Indicates if the comparison is public
+- `getCreationTime(): Instant`  
+  Time in UTC when the comparison was created
+- `getExpiryTime(): Instant`  
+  The expiry time if the comparison is set to expire, otherwise `null`
+- `getReady(): boolean`  
+  Indicates if the comparison is ready to display
 
-###### Comparison objects
+If a `Comparison` is _ready_ (i.e. it has been processed) the following additional getter methods are meaningful:
 
-`Comparison` objects have the following properties:
+- `getReadyTime(): Instant`  
+  Time in UTC the comparison became ready
+- `getFailed(): boolean`  
+  Indicates if comparison processing failed
+- `getErrorMessage(): String` _(only present if `failed`)_  
+  Reason processing of the comparison failed
 
-- `identifier`: a `String` giving the identifier.
-- `left`, `right`: `Comparison.Side` objects giving information about each side, with properties:
-    - `fileType`: the file extension.
-    - `sourceURL`  _(optional)_: if the file was specified as a URL, this will be a string with the URL. Otherwise, `null`.
-    - `displayName` _(optional)_: the display name, if one was given. Otherwise, `null`.
-- `isPublic`: a `boolean` giving whether the comparison is public, or requires authentication to view.
-- `creationTime`: an `Instant` giving when the comparison was created.
-- `expiryTime` _(optional)_: if the comparison will expire, an `Instant` giving the expiry time. Otherwise, `null` (indicating no expiry).
-- `ready`: `boolean` indicating whether the comparison is ready for display.
+#### Example usage
 
-If a `Comparison` is `ready` (i.e. it has been processed and is ready for display), it will have the following additional properties:
-- `readyTime`: an `Instant` giving the time the comparison became ready.
-- `failed`: `Boolean` indicating whether the comparison succeeded or failed.
-- `errorMessage` _(only present if `failed`)_: a string providing the developer with the reason the comparison failed.
+```java
+String identifier = "<identifier>";
 
-###### Example usage
+try {
+    Comparison comparison = comparisons.getComparison(identifier);
 
-The following snippet retrieves a specific comparison and prints key data to the console:
+    System.out.println(String.format(
+        "Comparison '%s' (%s) is %s.",
+        identifier,
+        comparison.getIsPublic() ? "public" : "private",
+        comparison.getReady() ? "ready" : "not ready"
+    ));
 
-    String identifier = "<identifier>";
-    
-    try {
-        Comparison comparison = comparisons.getComparison(identifier);
-        assert comparison.getIdentifier().equals(identifier);
-
+    if (comparison.getReady()) {
         System.out.println(String.format(
-            "Comparison '%s' (%s) is %s.",
-            identifier,
-            comparison.getIsPublic() ? "public" : "private",
-            comparison.getReady() ? "ready" : "not ready"
+            "The comparison took %s seconds.",
+            comparison.getReadyTime().getEpochSecond() - comparison.getCreationTime().getEpochSecond()
         ));
 
-        if (comparison.getReady()) {
+        if (comparison.getFailed()) {
             System.out.println(String.format(
-                "The comparison took %s seconds.",
-                comparison.getReadyTime().getEpochSecond() - comparison.getCreationTime().getEpochSecond()
+                "The comparison failed with error: %s",
+                comparison.getErrorMessage()
             ));
-
-            if (comparison.getFailed()) {
-                System.out.println("The comparison failed. Error message:" + comparison.getErrorMessage());
-            }
         }
-
-    } catch (Comparisons.ComparisonNotFoundException ex) {
-        System.out.println(String.format("Comparison '%s' doesn't exist.", identifier));
     }
-
+} catch (Comparisons.ComparisonNotFoundException ex) {
+    System.out.println(String.format("Comparison '%s' does not exist.", identifier));
+}
+```
 
 ### Deleting comparisons
 
-`Comparisons` provides `deleteComparison(String identifier)`, which attempts to delete the comparison with that identifier.
+- `deleteComparison(String identifier)`  
+  Returns nothing on successfully deleting the specified comparison or raises a `Comparisons.ComparisonNotFoundException` exception if no such comparison exists.
 
-It has no return value, and raises `Comparisons.ComparisonNotFoundException` if there isn't a comparison with that identifier.
+#### Example usage
 
-###### Example usage
+```java
+List<Comparison> allComparisons = comparisons.getAllComparisons();
+List<Comparison> oldestComparisons = allComparisons.subList(Math.max(allComparisons.size() - 10, 0), allComparisons.size());
+System.out.println(String.format("Deleting oldest %s comparisons ...", oldestComparisons.size()));
 
-    List<Comparison> allComparisons = comparisons.getAllComparisons();
-    List<Comparison> oldestComparisons = allComparisons.subList(Math.max(allComparisons.size() - 10, 0), allComparisons.size());
-
-    System.out.println(String.format("Deleting oldest %s comparisons...", oldestComparisons.size()));
-
-    for (Comparison comparison : oldestComparisons) {
-        comparisons.deleteComparison(comparison.getIdentifier());
-        System.out.println(String.format("Deleted comparison '%s'.", comparison.getIdentifier()));
-    }
+for (Comparison comparison : oldestComparisons) {
+    comparisons.deleteComparison(comparison.getIdentifier());
+    System.out.println(String.format("Comparison '%s' deleted.", comparison.getIdentifier()));
+}
+```
 
 ### Creating comparisons
 
-`Comparisons` provides `createComparison(left, right, [identifier, isPublic, expires])`, which returns a `Comparison` object representing the newly created comparison.
-
-For a complete, runnable example that creates a new comparison, see file [NewComparison.java](example/NewComparison.java).
-
-###### Creation options
+- `createComparison(Comparisons.Side left, Comparisons.Side right, String identifier, boolean isPublic, Instant expires)`  
+  Returns a `Comparison` representing the newly created comparison.
 
 `createComparison` accepts the following arguments:
 
-- `left`, `right`: `Comparisons.Side` objects describing the left and right files. These are described below.
-- `identifier` _(optional)_: the identifier to use for the comparison.
-    - If specified, the identifier can't clash with an existing comparison. (If so, a `Comparisons.BadRequestException` is thrown.)
-    - If left unspecified, the API will automatically generate one for you.
-- `public` _(optional)_: whether the comparison is publicly accessible.
-    - Defaults to `false`. If `true`, then the comparison viewer can be accessed by anyone, without authentication.
-    - See the full API documentation for details.
-- `expires` _(optional)_: an `Instant` specifying when the comparison will be automatically deleted.
-    - If given, must in the future.
-    - Defaults to `null`, meaning the comparison will never expire.
+- `left` / `right`  
+  Describes the left and right files (see following section)
+- `identifier` _(nullable)_  
+  Identifier to use for the comparison:
+  - If specified, the identifier must be unique (i.e. not already be in use)
+  - If `null`, the API will automatically generate a unique identifier
+- `isPublic`  
+  Specifies the comparison visibility:
+  - If `false` authentication is required to view the comparison
+  - If `true` the comparison can be accessed by anyone with knowledge of the URL
+- `expires` _(nullable)_  
+  Time at which the comparison will be deleted:
+  - If specified, the provided expiry time must be UTC and in the future
+  - If `null`, the comparison will never expire (but may be explicitly deleted)
 
-To specify `left` and `right`, create `Comparisons.Side` instances using one of the static constructors.
-The full set of overloads are documented in javadoc, but here are the main ones:
+The following exceptions may be raised in addition to [parameter validation exceptions](#exceptions-and-error-handling):
 
-- `Comparisons.Side.create(url, fileType, [displayName])`
-    - Specifies a file via a URL. You must give a fully qualified URL from which Draftable can download the file.
-    - `fileType` is required, given as the file extension
-    - `displayName` is an optional name for the file, to be shown in the comparison
+- `BadRequestException`  
+  The request could not be processed (e.g. `identifier` already in use)
 
-- `Comparisons.Side.create(file, fileType, [displayName])`
-    - Specifies a file to be uploaded in the request. You can provide a `File`, byte array, or `InputStream`.
-    - `fileType` and `displayName` are as before.
+#### Creating comparison sides
 
-###### Supported file types
+The two most common static constructors for creating `Comparisons.Side` objects are:
 
-The following file types are supported:
-- PDF: `pdf`
-- Word: `docx`, `docm`, `doc`, `rtf`
-- PowerPoint: `pptx`, `pptm`, `ppt`
+- `Comparisons.Side.create(File file, String fileType, String displayName)`  
+  Returns a `Comparisons.Side` for a locally accessible file.
+- `Comparisons.Side.create(String sourceURL, String fileType, String displayName)`  
+  Returns a `Comparisons.Side` for a remotely accessible file referenced by URL.
 
-###### Exceptions
+These constructors accept the following arguments:
 
-If you try to create a `Comparisons.Side` with an invalid `fileType` or malformed `url`, an `IllegalArgumentException` will be thrown.
+- `file`  
+  A file object to be read and uploaded
+- `sourceURL`  
+  The URL from which the server will download the file
+- `fileType`  
+  The type of file being submitted:
+  - PDF: `pdf`
+  - Word: `docx`, `docm`, `doc`, `rtf`
+  - PowerPoint: `pptx`, `pptm`, `ppt`
+- `displayName` _(nullable)_  
+  The name of the file shown in the comparison viewer
 
-Exceptions are raised by `createComparison` in the following cases:
-- If a parameter is invalid (e.g. `expires` is set to a time in the past), it will throw an `IllegalArgumentException`.
-    - All parameters should be validated client-side by this library. If not, a `Comparisons.BadRequestException` will be thrown. Please submit an issue on GitHub if you encounter such behaviour.
-- If `identifier` is already in use by another comparison, `Comparisons.BadRequestException` is thrown.
+#### Example usage
 
-###### Example usage
+```java
+File rightFile = new File(...);
 
-    File rightFile = new File(...);
-
-    Comparison comparison = comparisons.createComparison(
-        Comparisons.Side.create("https://domain.com/path/to/left.pdf", "pdf"),
-        Comparisons.Side.create(rightFile),
-        // identifier: not specified, so Draftable will generate one
-        null,
-        // isPublic: false, so that the comparison is private
-        false,
-        // expires: 30 minutes in the future, so the comparison will be automatically deleted then
-        Instant.now().plus(Duration.ofMinutes(30))
-    );
-
-    System.out.println("Created comparison: " + comparison);
-
-    // This generates a signed viewer URL that can be used to access the private comparison for the next 10 minutes.
-    String viewerURL = comparisons.signedViewerURL(
-        // identifier: The identifier of the comparison
-        comparison.identifier,
-        // validUntil: The amount of time before the link expires
-        Duration.ofMinutes(10),
-        // wait: Whether the viewer should wait for a comparison with the given identifier to exist.
-        //       (This is simply `false` for normal usage.)
-        false
-    );
-    System.out.println("Viewer URL (expires in 10 min): " + viewerURL);
-
-
+Comparison comparison = comparisons.createComparison(
+    Comparisons.Side.create("https://domain.com/path/to/left.pdf", "pdf"),
+    Comparisons.Side.create(new File("path/to/right/file.docx"), "docx"),
+    // identifier: null indicates the library should generate an identifier
+    null,
+    // isPublic: false ensures the comparison requires a signed URL to access
+    false,
+    // expires: The system should delete this comparison after two hours
+    Instant.now().plus(Duration.ofHours(2))
+);
+System.out.println(String.format("Created comparison: %s", comparison));
+```
 
 ### Displaying comparisons
 
-Comparisons are displayed using a _viewer URL_. See the section on displaying comparisons in the [API documentation](https://api.draftable.com) for details.
+- `publicViewerURL(String identifier, boolean wait)`  
+  Generates a public viewer URL for the specified comparison
+- `signedViewerURL(String identifier, Instant|Duration validUntil, boolean wait)`  
+  Generates a signed viewer URL for the specified comparison
 
-Viewer URLs are generated with the following methods:
+Both methods use the following common parameters:
 
-- `comparisons.publicViewerURL(String identifier, [boolean wait])`
-    - Viewer URL for a public comparison with the given `identifier`.
-    - `wait` is `false` by default, meaning the viewer will show an error if no such comparison exists.
-    - If `wait` is `true`, the viewer will wait for a comparison with the given `identifier` to exist (potentially displaying a loading animation forever).
+- `identifier`  
+  Identifier of the comparison for which to generate a _viewer URL_
+- `wait`  
+  Specifies the behaviour of the viewer if the provided comparison does not exist
+  - If `false`, the viewer will show an error if the `identifier` does not exist
+  - If `true`, the viewer will wait for a comparison with the provided `identifier` to exist  
+    Note this will result in a perpetual loading animation if the `identifier` is never created
 
-- `comparisons.signedViewerURL(String identifier, [Instant/Duration validUntil], [boolean wait])`
-    - Gets a signed viewer URL for a comparison with the given `identifier`. (The signature is an HMAC based on your credentials.)
-    - `validUntil` gives when the URL will expire. It's specified as an `Instant` or a `Duration`.
-        - If `validUntil` is `None`, the URL defaults to expiring 30 minutes in the future (more than enough time to load the page). 
-    - Again, if `wait` is `true`, the viewer will wait for a comparison with the given `identifier` to exist.
+The `signedViewerURL` method also supports the following parameters:
 
+- `validUntil` _(nullable)_  
+  Time at which the URL will expire (no longer load)
+  - If specified, the provided expiry time must be UTC and in the future
+  - If `null`, the URL will be generated with the default 30 minute expiry
 
-###### Example usage
+See the displaying comparisons section in the [API documentation](https://api.draftable.com) for additional details.
 
-In this example, we'll start creating a comparison in the background, but immediately direct our user to a viewer.
-The comparison viewer will display a loading animation, waiting for the comparison to be created and processed.
+#### Example usage
 
-    // This generates a unique identifier we can use.
-    String identifier = Comparisons.generateIdentifier();
+```java
+String identifier = "<identifier>";
 
-    CompletableFuture<Comparison> future = comparisons.createComparisonAsync(
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/left.rtf", "rtf"),
-        Side.create("https://api.draftable.com/static/test-documents/code-of-conduct/right.pdf", "pdf"),
-        // identifier: the identifier we just generated
-        identifier,
-        // isPublic: false, for a private comparison
-        false,
-        // expires: null, so the comparison will never expire
-        null
-    );
-
-    // At some point, we will have created the comparison.
-    // (The operation could take some time if we're uploading files...)
-    // In the mean time, we can immediately give the user a viewer URL, using `wait=true`:
-    String viewerURL = comparisons.signedViewerURL(identifier, Duration.ofMinutes(30), true);
-
-    // This URL is valid for 30 minutes, and will show a loading screen until the comparison is ready.
-    System.out.println("Comparison is being created. View it here: " + viewerURL);
-
-    // For the purposes of this example, we'll just block until the request finishes.
-    future.join();
-
+// Retrieve a signed viewer URL which is valid for 1 hour. The viewer will wait
+// for the comparison to exist in the event processing has not yet completed.
+String viewerURL = comparisons.signedViewerURL(identifier, Duration.ofHours(1), true);
+System.out.println(String.format("Viewer URL (expires in 1 hour): %s", viewerURL));
+```
 
 ### Utility methods
 
-- `Comparisons.generateIdentifier()` generates a random unique identifier for you to use.
+- `generateIdentifier()`
+  Generates a random unique comparison identifier
 
+Other information
+-----------------
 
-### Proxying and advanced configuration
+### Network & proxy configuration
 
-The underlying `httpclient` and `httpasyncclient` objects are configured to respect system properties. The full list of options considered are given in the [Apache HttpClient documentation](http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html). These options allow configuring the use of a proxy server, as well as other request parameters.
+The library utilises the Apache `httpclient` and `httpasyncclient` packages for performing HTTP requests, which respect configured system properties pertaining to network configuration. The full list of consulted system properties can be found in the [HttpClientBuilder class](https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html) documentation.
 
------
+### Self-signed certificates
 
-That's it! Please report issues you encounter, and we'll work quickly to resolve them. Contact us at [support@draftable.com](mailto://support@draftable.com) if you need assistance.
+If connecting to an API Self-hosted endpoint which is using a self-signed certificate (the default) you will need to suppress certificate validation. The recommended approach is to import the self-signed certificate into the _KeyStore_ of your Java installation, which will ensure the Java runtime trusts the certificate.
+
+Alternatively, you can suppress certificate validation by creating customised `X509TrustManager` and `HostnameVerifier` instances. A sample implementation can be found in the example project within the `SetupIgnoreSSLCheck()` method.
+
+Disabling certificate validation in production environments is strongly discouraged as it significantly lowers security. We only recommend using this approach in development environments if configuring a CA signed certificate for API Self-hosted is not possible.
