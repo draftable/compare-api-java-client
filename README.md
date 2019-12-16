@@ -44,7 +44,7 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
   https://draftable.your.com/api/api-explorer - and experiment with the API there.
 
 - To start making API calls, make a note of your account credentials from the API explorer page
-  or the account credentials page, which have a URL like https://draftable.your.com/account/credientials
+  or the account credentials page, which have a URL like https://draftable.your.com/account/credentials
 
 - In particular, make a note of the base URL, which will be something like https://draftable.your.com/api/v1
   with no trailing slash at the end.
