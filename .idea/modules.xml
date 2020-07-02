@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/compare-api-java-client.iml" filepath="$PROJECT_DIR$/compare-api-java-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/compare-api-java-client.iml" filepath="$PROJECT_DIR$/.idea/compare-api-java-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/compare-api-java-client/draftable-compare-api.iml" filepath="$PROJECT_DIR$/compare-api-java-client/draftable-compare-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/example.iml" filepath="$PROJECT_DIR$/example/example.iml" />
     </modules>
   </component>
 </project>
