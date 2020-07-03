@@ -1,8 +1,7 @@
 package com.draftable.api.client;
 
-import javax.annotation.Nullable;
 import javax.annotation.Nonnull;
-
+import javax.annotation.Nullable;
 import java.time.Instant;
 
 /**

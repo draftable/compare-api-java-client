@@ -3,8 +3,8 @@ package com.draftable.api.client;
 import org.apache.commons.codec.Charsets;
 import org.json.JSONArray;
 
-import javax.annotation.Nullable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
