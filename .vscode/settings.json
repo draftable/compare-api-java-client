@@ -7,5 +7,8 @@
 
     // Important to disable for EditorConfig to apply correctly
     // See: https://github.com/editorconfig/editorconfig-vscode/issues/153
-    "files.trimTrailingWhitespace": false
+    "files.trimTrailingWhitespace": false,
+
+    // Automatically update build configuration on changes to build files
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
