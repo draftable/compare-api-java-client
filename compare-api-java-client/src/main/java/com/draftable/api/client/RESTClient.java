@@ -107,15 +107,11 @@ class RESTClient implements Closeable {
 
     // region getClient(), getAsyncClient(), close()
 
-    @Nonnull
-    private final Object clientSync = new Object();
     @Nullable
-    private CloseableHttpClient client;
+    private volatile CloseableHttpClient client;
 
-    @Nonnull
-    private final Object asyncClientSync = new Object();
     @Nullable
-    private CloseableHttpAsyncClient asyncClient;
+    private volatile CloseableHttpAsyncClient asyncClient;
 
     @Nonnull
     private static CloseableHttpClient createClient() {
@@ -133,7 +129,7 @@ class RESTClient implements Closeable {
     private HttpClient getClient() {
         HttpClient currentClient = client;
         if (currentClient == null) {
-            synchronized (clientSync) {
+            synchronized (this) {
                 currentClient = client;
                 if (currentClient == null) {
                     currentClient = client = createClient();
@@ -147,7 +143,7 @@ class RESTClient implements Closeable {
     private HttpAsyncClient getAsyncClient() {
         HttpAsyncClient currentAsyncClient = asyncClient;
         if (currentAsyncClient == null) {
-            synchronized (clientSync) {
+            synchronized (this) {
                 currentAsyncClient = asyncClient;
                 if (currentAsyncClient == null) {
                     currentAsyncClient = asyncClient = createAsyncClient();
@@ -165,7 +161,7 @@ class RESTClient implements Closeable {
     public void close() throws IOException {
         if (client != null) {
             CloseableHttpClient currentClient;
-            synchronized (clientSync) {
+            synchronized (this) {
                 currentClient = client;
                 client = null;
             }
@@ -174,7 +170,7 @@ class RESTClient implements Closeable {
 
         if (asyncClient != null) {
             CloseableHttpAsyncClient currentAsyncClient;
-            synchronized (asyncClientSync) {
+            synchronized (this) {
                 currentAsyncClient = asyncClient;
                 asyncClient = null;
             }
