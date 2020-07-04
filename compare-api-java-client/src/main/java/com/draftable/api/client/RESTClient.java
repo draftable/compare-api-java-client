@@ -38,24 +38,28 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-
 /**
- * A simplified client for our REST endpoints that supports synchronous and asynchronous HTTP requests.
- * Built on top of Apache's HTTPClient and HTTPAsyncClient libraries.
+ * A simplified client for our REST endpoints that supports synchronous and
+ * asynchronous HTTP requests. Built on top of Apache's HTTPClient and
+ * HTTPAsyncClient libraries.
  */
-@SuppressWarnings({"ConstantConditions", "unused", "WeakerAccess", "SameParameterValue"})
+@SuppressWarnings({ "ConstantConditions", "unused", "WeakerAccess", "SameParameterValue" })
 class RESTClient implements Closeable {
 
-    //region Exceptions - HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException
+    // region Exceptions - HTTP404NotFoundException, HTTP400BadRequestException,
+    // HTTPInvalidAuthenticationException, UnknownResponseException
 
     static class ClientException extends Exception {
-        ClientException() {}
+        ClientException() {
+        }
+
         ClientException(@Nonnull String details) {
             super(details);
         }
     }
 
-    static class HTTP404NotFoundException extends ClientException {}
+    static class HTTP404NotFoundException extends ClientException {
+    }
 
     static class HTTP400BadRequestException extends ClientException {
         HTTP400BadRequestException(@Nullable final String details) {
@@ -65,8 +69,8 @@ class RESTClient implements Closeable {
 
     static class HTTPInvalidAuthenticationException extends ClientException {
         HTTPInvalidAuthenticationException(@Nullable final String details) {
-                    super(details);
-                }
+            super(details);
+        }
     }
 
     static class UnknownResponseException extends ClientException {
@@ -75,18 +79,21 @@ class RESTClient implements Closeable {
         }
     }
 
-    //endregion Exceptions - HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException
+    // endregion Exceptions - HTTP404NotFoundException, HTTP400BadRequestException,
+    // HTTPInvalidAuthenticationException, UnknownResponseException
 
-    //region Fields - authToken
+    // region Fields - authToken
 
-    @Nonnull private final String authToken;
+    @Nonnull
+    private final String authToken;
 
-    //endregion Fields - authToken
+    // endregion Fields - authToken
 
-    //region Constructor
+    // region Constructor
 
     /**
      * Creates and sets up a new RESTClient with the given authorization token.
+     *
      * @param authToken The authorization token to pass in the request headers.
      */
     RESTClient(@Nonnull final String authToken) {
@@ -96,16 +103,19 @@ class RESTClient implements Closeable {
         this.authToken = authToken;
     }
 
-    //endregion Constructor
+    // endregion Constructor
 
-    //region getClient(), getAsyncClient(), close()
+    // region getClient(), getAsyncClient(), close()
 
-    @Nonnull private final Object clientSync = new Object();
-    @Nullable private CloseableHttpClient client;
+    @Nonnull
+    private final Object clientSync = new Object();
+    @Nullable
+    private CloseableHttpClient client;
 
-    @Nonnull private final Object asyncClientSync = new Object();
-    @Nullable private CloseableHttpAsyncClient asyncClient;
-
+    @Nonnull
+    private final Object asyncClientSync = new Object();
+    @Nullable
+    private CloseableHttpAsyncClient asyncClient;
 
     @Nonnull
     private static CloseableHttpClient createClient() {
@@ -118,7 +128,6 @@ class RESTClient implements Closeable {
         asyncClient.start();
         return asyncClient;
     }
-
 
     @Nonnull
     private HttpClient getClient() {
@@ -148,9 +157,9 @@ class RESTClient implements Closeable {
         return currentAsyncClient;
     }
 
-
     /**
      * Closes any open inner HTTP clients, and ends any async event loops.
+     *
      * @throws IOException An error occurred closing an HTTP client.
      */
     public void close() throws IOException {
@@ -173,26 +182,26 @@ class RESTClient implements Closeable {
         }
     }
 
-    //endregion getClient(), getAsyncClient(), close()
+    // endregion getClient(), getAsyncClient(), close()
 
-    //region execute(request), executeAsync(request)
+    // region execute(request), executeAsync(request)
 
-    //region setupRequestHeaders(request), getHostForRequest(request)
+    // region setupRequestHeaders(request), getHostForRequest(request)
 
     private void setupRequestHeaders(@Nonnull final HttpRequestBase request) {
-            // These headers are common to all our requests.
-            request.setHeader("Authorization", "Token " + authToken);
-            request.setHeader("Accept", "application/json");
-        }
+        // These headers are common to all our requests.
+        request.setHeader("Authorization", "Token " + authToken);
+        request.setHeader("Accept", "application/json");
+    }
 
     private static HttpHost getHostForRequest(@Nonnull final HttpRequestBase request) {
-            URI uri = request.getURI();
-            return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-        }
+        URI uri = request.getURI();
+        return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+    }
 
-    //endregion setupRequestHeaders(request), getHostForRequest(request)
+    // endregion setupRequestHeaders(request), getHostForRequest(request)
 
-    //region consumeResponse(HttpResponse)
+    // region consumeResponse(HttpResponse)
 
     @Nullable
     private static byte[] getResponseBytes(@Nonnull final HttpResponse response) throws IOException {
@@ -243,7 +252,8 @@ class RESTClient implements Closeable {
 
     @Nullable
     private static String consumeResponse(@Nonnull final HttpResponse response, final int expectedStatusCode)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException,
+            UnknownResponseException, IOException {
 
         int statusCode = response.getStatusLine().getStatusCode();
 
@@ -273,19 +283,25 @@ class RESTClient implements Closeable {
         return getResponseString(response);
     }
 
-    //endregion consumeResponse(HttpResponse)
+    // endregion consumeResponse(HttpResponse)
 
-    //region execute(request, expectedStatusCode)
+    // region execute(request, expectedStatusCode)
 
     /**
-     * Synchronously executes and consumes a given request, returning the String response. Throws an exception upon an unexpected status code.
-     * @param request A HttpRequestBase giving the request to execute. This request object is modified and consumed.
-     * @param expectedStatusCode The expected response status code. Should be e.g. 200, 201, 204. Must not be 404, 400, or other error codes.
+     * Synchronously executes and consumes a given request, returning the String
+     * response. Throws an exception upon an unexpected status code.
+     *
+     * @param request            A HttpRequestBase giving the request to execute.
+     *                           This request object is modified and consumed.
+     * @param expectedStatusCode The expected response status code. Should be e.g.
+     *                           200, 201, 204. Must not be 404, 400, or other error
+     *                           codes.
      * @return A String giving the response from the server.
      */
     @Nullable
     private String execute(@Nonnull final HttpRequestBase request, final int expectedStatusCode)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException,
+            UnknownResponseException, IOException {
 
         setupRequestHeaders(request);
 
@@ -298,15 +314,17 @@ class RESTClient implements Closeable {
         }
     }
 
-    //endregion execute(request, expectedStatusCode)
+    // endregion execute(request, expectedStatusCode)
 
-    //region executeAsync(request, expectedStatusCode)
+    // region executeAsync(request, expectedStatusCode)
 
     private static class AsyncHTTPOperation extends CompletableFuture<String> {
 
-        @Nonnull final Future innerFuture;
+        @Nonnull
+        final Future innerFuture;
 
-        AsyncHTTPOperation(@Nonnull HttpAsyncClient asyncClient, @Nonnull HttpRequestBase request, int expectedStatusCode) {
+        AsyncHTTPOperation(@Nonnull HttpAsyncClient asyncClient, @Nonnull HttpRequestBase request,
+                int expectedStatusCode) {
             super();
 
             AsyncHTTPOperation outerFuture = this;
@@ -326,7 +344,8 @@ class RESTClient implements Closeable {
                 @Override
                 public void failed(@Nonnull Exception ex) {
                     // This should be an IOException, but it's possible there are others.
-                    // If more than an IOException is possible, we should document them or update the logic accordingly.
+                    // If more than an IOException is possible, we should document them or update
+                    // the logic accordingly.
                     // ~ James
                     outerFuture.completeExceptionallyInternal(ex);
                 }
@@ -348,7 +367,8 @@ class RESTClient implements Closeable {
             return super.completeExceptionally(throwable);
         }
 
-        // Public interface. We allow cancellation by passing on to the inner future. We do not allow the outside world to set completion.
+        // Public interface. We allow cancellation by passing on to the inner future. We
+        // do not allow the outside world to set completion.
 
         @Override
         public boolean complete(@Nullable String response) {
@@ -367,23 +387,31 @@ class RESTClient implements Closeable {
     }
 
     /**
-     * Asynchronously executes and consumes a given request, returning the String response. Completes exceptionally upon an unexpected status code or other failure.
-     * Exceptions are as
-     * @param request A HttpRequestBase giving the request to execute. This request object is modified and consumed.
-     * @param expectedStatusCode The expected response status code. Should be e.g. 200, 201, 204. Must not be 404, 400, or other error codes.
-     * @return A CompletionStage that will give the String response from the server, or the error as encountered.
+     * Asynchronously executes and consumes a given request, returning the String
+     * response. Completes exceptionally upon an unexpected status code or other
+     * failure. Exceptions are as
+     *
+     * @param request            A HttpRequestBase giving the request to execute.
+     *                           This request object is modified and consumed.
+     * @param expectedStatusCode The expected response status code. Should be e.g.
+     *                           200, 201, 204. Must not be 404, 400, or other error
+     *                           codes.
+     * @return A CompletionStage that will give the String response from the server,
+     *         or the error as encountered.
      */
     @Nonnull
-    private CompletableFuture<String> executeAsync(@Nonnull final HttpRequestBase request, final int expectedStatusCode) {
+    private CompletableFuture<String> executeAsync(@Nonnull final HttpRequestBase request,
+            final int expectedStatusCode) {
         setupRequestHeaders(request);
         return new AsyncHTTPOperation(getAsyncClient(), request, expectedStatusCode);
     }
 
-    //endregion executeAsync(request, expectedStatusCode)
+    // endregion executeAsync(request, expectedStatusCode)
 
-    //endregion execute(request), executeAsync(request)
+    // endregion execute(request), executeAsync(request)
 
-    //region Static ContentBody builders - buildContentBody(File | byte[] | InputStream)
+    // region Static ContentBody builders - buildContentBody(File | byte[] |
+    // InputStream)
 
     @Nonnull
     static ContentBody buildContentBody(@Nonnull File file) {
@@ -392,44 +420,58 @@ class RESTClient implements Closeable {
 
     @Nonnull
     static ContentBody buildContentBody(@Nonnull byte[] data) {
-        // Note: We have to give a file name as the third parameter, but for our purposes it doesn't matter what the name is.
-        //       (Django Rest Framework doesn't seem to like it if we don't give a file name, we need to pass one in here.) ~ James
+        // Note: We have to give a file name as the third parameter, but for our
+        // purposes it doesn't matter what the name is.
+        // (Django Rest Framework doesn't seem to like it if we don't give a file name,
+        // we need to pass one in here.) ~ James
         return new ByteArrayBody(data, ContentType.APPLICATION_OCTET_STREAM, "filename");
     }
 
     @Nonnull
     static ContentBody buildContentBody(@Nonnull InputStream stream) {
-        // Note: We have to give a file name as the third parameter, but for our purposes it doesn't matter what the name is.
-        //       (Django Rest Framework doesn't seem to like it if we don't give a file name, we need to pass one in here.) ~ James
+        // Note: We have to give a file name as the third parameter, but for our
+        // purposes it doesn't matter what the name is.
+        // (Django Rest Framework doesn't seem to like it if we don't give a file name,
+        // we need to pass one in here.) ~ James
         return new InputStreamBody(stream, ContentType.APPLICATION_OCTET_STREAM, "filename");
     }
 
-    //endregion Static ContentBody builders - buildContentBody(File | byte[] | InputStream)
+    // endregion Static ContentBody builders - buildContentBody(File | byte[] |
+    // InputStream)
 
-    //region HTTP operations: get(endpoint), getAsync(endpoint), delete(endpoint), deleteAsync(endpoint), post(endpoint, data, files), postAsync(endpoint, data, files)
+    // region HTTP operations: get(endpoint), getAsync(endpoint), delete(endpoint),
+    // deleteAsync(endpoint), post(endpoint, data, files), postAsync(endpoint, data,
+    // files)
 
-    //region Request builders: buildGetRequest(endpoint, parameters), buildDeleteRequest(endpoint), buildPostRequest(endpoint, parameters, files)
+    // region Request builders: buildGetRequest(endpoint, parameters),
+    // buildDeleteRequest(endpoint), buildPostRequest(endpoint, parameters, files)
 
     /**
-     * Builds a GET request for the given endpoint URI, with the given GET parameters.
-     * @param endpoint A string giving the URI of the endpoint to query.
+     * Builds a GET request for the given endpoint URI, with the given GET
+     * parameters.
+     *
+     * @param endpoint   A string giving the URI of the endpoint to query.
      * @param parameters The GET parameters, or null for no parameters.
      * @return A new HttpGet request instance for the given endpoint and parameters.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
     @Nonnull
-    private static HttpGet buildGetRequest(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters) throws IllegalArgumentException {
+    private static HttpGet buildGetRequest(@Nonnull final String endpoint,
+            @Nullable final Map<String, String> parameters) throws IllegalArgumentException {
         return buildGetRequest(URI.create(endpoint), parameters);
     }
 
     /**
-     * Builds a GET request for the given endpoint URI, with the given GET parameters.
-     * @param endpoint A string giving the URI of the endpoint to query.
+     * Builds a GET request for the given endpoint URI, with the given GET
+     * parameters.
+     *
+     * @param endpoint   A string giving the URI of the endpoint to query.
      * @param parameters The GET parameters, or null for no parameters.
      * @return A new HttpGet request instance for the given endpoint and parameters.
      */
     @Nonnull
-    private static HttpGet buildGetRequest(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters) throws IllegalArgumentException {
+    private static HttpGet buildGetRequest(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters)
+            throws IllegalArgumentException {
         if (parameters == null) {
             return new HttpGet(endpoint);
         }
@@ -447,6 +489,7 @@ class RESTClient implements Closeable {
 
     /**
      * Builds a DELETE request for the given endpoint URI.
+     *
      * @param endpoint A string giving the URI of the endpoint to DELETE.
      * @return A new HttpDelete request instance for the given endpoint.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
@@ -458,6 +501,7 @@ class RESTClient implements Closeable {
 
     /**
      * Builds a DELETE request for the given endpoint URI.
+     *
      * @param endpoint A string giving the URI of the endpoint to DELETE.
      * @return A new HttpDelete request instance for the given endpoint.
      */
@@ -467,30 +511,36 @@ class RESTClient implements Closeable {
     }
 
     /**
-     * Builds a POST request for the given endpoint URI, with the given parameters and content.
-     * @param endpoint A string giving the URI of the endpoint to POST to.
+     * Builds a POST request for the given endpoint URI, with the given parameters
+     * and content.
+     *
+     * @param endpoint   A string giving the URI of the endpoint to POST to.
      * @param parameters The string data to provide in the POST request.
-     * @param content Files to provide in the POST request.
+     * @param content    Files to provide in the POST request.
      * @return A new HttpPost request instance for the given endpoint and data.
-     * @throws IOException Unable to read the given content.
+     * @throws IOException              Unable to read the given content.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
     @Nonnull
-    private static HttpPost buildPostRequest(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
+    private static HttpPost buildPostRequest(@Nonnull final String endpoint,
+            @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
             throws IOException, IllegalArgumentException {
         return buildPostRequest(URI.create(endpoint), parameters, content);
     }
 
     /**
-     * Builds a POST request for the given endpoint URI, with the given parameters and files.
-     * @param endpoint A string giving the URI of the endpoint to POST to.
+     * Builds a POST request for the given endpoint URI, with the given parameters
+     * and files.
+     *
+     * @param endpoint   A string giving the URI of the endpoint to POST to.
      * @param parameters The string data to provide in the POST request.
-     * @param content Files to provide in the POST request.
+     * @param content    Files to provide in the POST request.
      * @throws IOException Unable to read the given content.
      * @return A new HttpPost request instance for the given endpoint and data.
      */
     @Nonnull
-    private static HttpPost buildPostRequest(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
+    private static HttpPost buildPostRequest(@Nonnull final URI endpoint,
+            @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
             throws IOException {
         final HttpPost request = new HttpPost(endpoint);
 
@@ -510,45 +560,57 @@ class RESTClient implements Closeable {
                 builder.addPart(key, content.get(key));
             }
 
-            // Unfortunately we can't use the MultipartEntityBuilder's entity straight out of the box with HttpAsyncClient...
-            // Instead we buffer the whole thing. It's quite sad, but there isn't source available that does it without the buffering.
+            // Unfortunately we can't use the MultipartEntityBuilder's entity straight out
+            // of the box with HttpAsyncClient...
+            // Instead we buffer the whole thing. It's quite sad, but there isn't source
+            // available that does it without the buffering.
             final HttpEntity multipartEntity = builder.build();
-            // This ugly wrapper is to force BufferedHttpEntity to actually buffer the entity - we need to make it claim to be not streamable...
+            // This ugly wrapper is to force BufferedHttpEntity to actually buffer the
+            // entity - we need to make it claim to be not streamable...
             request.setEntity(new BufferedHttpEntity(new HttpEntity() {
                 @Override
                 public boolean isRepeatable() {
                     return false;
                 }
+
                 @Override
                 public boolean isChunked() {
                     return multipartEntity.isChunked();
                 }
+
                 @Override
                 public long getContentLength() {
                     return multipartEntity.getContentLength();
                 }
+
                 @Override
                 public Header getContentType() {
                     return multipartEntity.getContentType();
                 }
+
                 @Override
                 public Header getContentEncoding() {
                     return multipartEntity.getContentEncoding();
                 }
+
                 @Override
                 public InputStream getContent() throws IOException, UnsupportedOperationException {
                     return multipartEntity.getContent();
                 }
+
                 @Override
                 public void writeTo(OutputStream outputStream) throws IOException {
                     multipartEntity.writeTo(outputStream);
                 }
+
                 @Override
                 public boolean isStreaming() {
                     return multipartEntity.isStreaming();
                 }
+
                 @Deprecated
-                public void consumeContent() throws IOException {}
+                public void consumeContent() throws IOException {
+                }
             }));
 
         } else {
@@ -570,82 +632,118 @@ class RESTClient implements Closeable {
         return request;
     }
 
-    //endregion Request builders: buildGetRequest(endpoint, parameters), buildDeleteRequest(endpoint), buildPostRequest(endpoint, parameters, files)
+    // endregion Request builders: buildGetRequest(endpoint, parameters),
+    // buildDeleteRequest(endpoint), buildPostRequest(endpoint, parameters, files)
 
-    //region get(endpoint, [parameters]), getAsync(endpoint, [parameters])
+    // region get(endpoint, [parameters]), getAsync(endpoint, [parameters])
 
     /**
      * Synchronously queries a given endpoint with a GET request.
+     *
      * @param endpoint The URI to query.
      * @return The response from the server, as a String.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 200 OK.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 200 OK.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
-    String get(@Nonnull final URI endpoint)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    String get(@Nonnull final URI endpoint) throws HTTP404NotFoundException, HTTP400BadRequestException,
+            HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         return get(endpoint, null);
     }
 
     /**
      * Synchronously queries a given endpoint with a GET request.
-     * @param endpoint The URI to query.
+     *
+     * @param endpoint   The URI to query.
      * @param parameters The GET parameters to pass in the query.
      * @return The response from the server, as a String.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 200 OK.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 200 OK.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
     String get(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException,
+            UnknownResponseException, IOException {
         return execute(buildGetRequest(endpoint, parameters), HttpStatus.SC_OK);
     }
 
     /**
      * Synchronously queries a given endpoint with a GET request.
+     *
      * @param endpoint The URI to query.
      * @return The response from the server, as a String.
-     * @throws IllegalArgumentException The given endpoint is not a valid URI.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 200 OK.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws IllegalArgumentException           The given endpoint is not a valid
+     *                                            URI.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 200 OK.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
-    String get(@Nonnull final String endpoint)
-            throws IllegalArgumentException, HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    String get(@Nonnull final String endpoint) throws IllegalArgumentException, HTTP404NotFoundException,
+            HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         return get(endpoint, null);
     }
 
     /**
      * Synchronously queries a given endpoint with a GET request.
-     * @param endpoint The URI to query.
+     *
+     * @param endpoint   The URI to query.
      * @param parameters The GET parameters to pass in the query.
      * @return The response from the server, as a String.
-     * @throws IllegalArgumentException The given endpoint is not a valid URI.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 200 OK.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws IllegalArgumentException           The given endpoint is not a valid
+     *                                            URI.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 200 OK.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
     String get(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters)
-            throws IllegalArgumentException, HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+            throws IllegalArgumentException, HTTP404NotFoundException, HTTP400BadRequestException,
+            HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         return execute(buildGetRequest(endpoint, parameters), HttpStatus.SC_OK);
     }
 
     /**
      * Asynchronously queries a given endpoint with a GET request.
+     *
      * @param endpoint The URI to query.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous get() methods are possible.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous get()
+     *         methods are possible.
      */
     @Nonnull
     CompletableFuture<String> getAsync(@Nonnull final URI endpoint) {
@@ -654,9 +752,12 @@ class RESTClient implements Closeable {
 
     /**
      * Asynchronously queries a given endpoint with a GET request.
-     * @param endpoint The URI to query.
+     *
+     * @param endpoint   The URI to query.
      * @param parameters The GET parameters to pass in the query.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous get() methods are possible.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous get()
+     *         methods are possible.
      */
     @Nonnull
     CompletableFuture<String> getAsync(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters) {
@@ -665,8 +766,11 @@ class RESTClient implements Closeable {
 
     /**
      * Asynchronously queries a given endpoint with a GET request.
+     *
      * @param endpoint The URI to query.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous get() methods are possible.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous get()
+     *         methods are possible.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
     @Nonnull
@@ -676,51 +780,74 @@ class RESTClient implements Closeable {
 
     /**
      * Asynchronously queries a given endpoint with a GET request.
-     * @param endpoint The URI to query.
+     *
+     * @param endpoint   The URI to query.
      * @param parameters The GET parameters to pass in the query.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous get() methods are possible.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous get()
+     *         methods are possible.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
     @Nonnull
-    CompletableFuture<String> getAsync(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters) throws IllegalArgumentException {
+    CompletableFuture<String> getAsync(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters)
+            throws IllegalArgumentException {
         return executeAsync(buildGetRequest(endpoint, parameters), HttpStatus.SC_OK);
     }
 
-    //endregion get(endpoint), getAsync(endpoint)
+    // endregion get(endpoint), getAsync(endpoint)
 
-    //region delete(endpoint), deleteAsync(endpoint)
+    // region delete(endpoint), deleteAsync(endpoint)
 
     /**
      * Synchronously submits a DELETE request to a given endpoint.
+     *
      * @param endpoint The URI to submit the DELETE request to.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 204 NO CONTENT.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 204 NO
+     *                                            CONTENT.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
-    void delete(@Nonnull final URI endpoint)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    void delete(@Nonnull final URI endpoint) throws HTTP404NotFoundException, HTTP400BadRequestException,
+            HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         execute(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT);
     }
 
     /**
      * Synchronously submits a DELETE request to a given endpoint.
+     *
      * @param endpoint The URI to submit the DELETE request to.
-     * @throws IllegalArgumentException The given endpoint is not a valid URI.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 204 NO CONTENT.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws IllegalArgumentException           The given endpoint is not a valid
+     *                                            URI.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 204 NO
+     *                                            CONTENT.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
-    void delete(@Nonnull final String endpoint)
-            throws IllegalArgumentException, HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    void delete(@Nonnull final String endpoint) throws IllegalArgumentException, HTTP404NotFoundException,
+            HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         execute(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT);
     }
 
     /**
-     * Asynchronously submits a DELETE request to a given endpoint. Exceptional completions as documented in the synchronous delete() methods are possible.
+     * Asynchronously submits a DELETE request to a given endpoint. Exceptional
+     * completions as documented in the synchronous delete() methods are possible.
+     *
      * @param endpoint The URI to submit the DELETE request to.
      */
     @Nonnull
@@ -730,7 +857,9 @@ class RESTClient implements Closeable {
     }
 
     /**
-     * Asynchronously submits a DELETE request to a given endpoint. Exceptional completions as documented in the synchronous delete() methods are possible.
+     * Asynchronously submits a DELETE request to a given endpoint. Exceptional
+     * completions as documented in the synchronous delete() methods are possible.
+     *
      * @param endpoint The URI to submit the DELETE request to.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
@@ -740,56 +869,81 @@ class RESTClient implements Closeable {
         return executeAsync(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT).thenApply(result -> (Void) null);
     }
 
-    //endregion delete(endpoint), deleteAsync(endpoint)
+    // endregion delete(endpoint), deleteAsync(endpoint)
 
-    //region post(endpoint, parameters, files), postAsync(endpoint, parameters, files)
+    // region post(endpoint, parameters, files), postAsync(endpoint, parameters,
+    // files)
 
     /**
      * Synchronously submits a POST request to a given endpoint.
-     * @param endpoint The URI to submit the POST request to.
+     *
+     * @param endpoint   The URI to submit the POST request to.
      * @param parameters Parameters to include in the POST request body.
-     * @param content Other content (including files) to include in the POST request body.
+     * @param content    Other content (including files) to include in the POST
+     *                   request body.
      * @return The response from the server, as a String.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 201 CREATED.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 201 CREATED.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
-    String post(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
-            throws HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    String post(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters,
+            @Nullable final Map<String, ContentBody> content) throws HTTP404NotFoundException,
+            HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         return execute(buildPostRequest(endpoint, parameters, content), HttpStatus.SC_CREATED);
     }
 
     /**
      * Synchronously submits a POST request to a given endpoint.
-     * @param endpoint The URI to submit the POST request to.
+     *
+     * @param endpoint   The URI to submit the POST request to.
      * @param parameters Parameters to include in the POST request body.
-     * @param content Other content (including files) to include in the POST request body.
+     * @param content    Other content (including files) to include in the POST
+     *                   request body.
      * @return The response from the server, as a String.
-     * @throws IllegalArgumentException The given endpoint is not a valid URI.
-     * @throws HTTP404NotFoundException The response code was 404 NOT FOUND.
-     * @throws HTTP400BadRequestException The response code was 400 BAD REQUEST.
-     * @throws HTTPInvalidAuthenticationException The response code indicated that the given authentication was invalid.
-     * @throws UnknownResponseException The server returned an unknown response. (We expect 201 CREATED.)
-     * @throws IOException Unable to communicate with the server.
+     * @throws IllegalArgumentException           The given endpoint is not a valid
+     *                                            URI.
+     * @throws HTTP404NotFoundException           The response code was 404 NOT
+     *                                            FOUND.
+     * @throws HTTP400BadRequestException         The response code was 400 BAD
+     *                                            REQUEST.
+     * @throws HTTPInvalidAuthenticationException The response code indicated that
+     *                                            the given authentication was
+     *                                            invalid.
+     * @throws UnknownResponseException           The server returned an unknown
+     *                                            response. (We expect 201 CREATED.)
+     * @throws IOException                        Unable to communicate with the
+     *                                            server.
      */
     @Nullable
-    String post(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
-            throws IllegalArgumentException, HTTP404NotFoundException, HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
+    String post(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters,
+            @Nullable final Map<String, ContentBody> content) throws IllegalArgumentException, HTTP404NotFoundException,
+            HTTP400BadRequestException, HTTPInvalidAuthenticationException, UnknownResponseException, IOException {
         return execute(buildPostRequest(endpoint, parameters, content), HttpStatus.SC_CREATED);
     }
 
     /**
      * Asynchronously submits a POST request to a given endpoint.
-     * @param endpoint The URI to submit the POST request to.
+     *
+     * @param endpoint   The URI to submit the POST request to.
      * @param parameters Parameters to include in the POST request body.
-     * @param content Other content (including files) to include in the POST request body.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous post() methods are possible.
+     * @param content    Other content (including files) to include in the POST
+     *                   request body.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous post()
+     *         methods are possible.
      */
     @Nonnull
-    CompletableFuture<String> postAsync(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content) {
+    CompletableFuture<String> postAsync(@Nonnull final URI endpoint, @Nullable final Map<String, String> parameters,
+            @Nullable final Map<String, ContentBody> content) {
         try {
             return executeAsync(buildPostRequest(endpoint, parameters, content), HttpStatus.SC_CREATED);
         } catch (IOException ex) {
@@ -801,15 +955,19 @@ class RESTClient implements Closeable {
 
     /**
      * Asynchronously submits a POST request to a given endpoint.
-     * @param endpoint The URI to submit the POST request to.
+     *
+     * @param endpoint   The URI to submit the POST request to.
      * @param parameters Parameters to include in the POST request body.
-     * @param content Other content (including files) to include in the POST request body.
-     * @return A CompletableFuture giving the response from the server, as a String. Exceptional completions as documented in the synchronous post() methods are possible.
+     * @param content    Other content (including files) to include in the POST
+     *                   request body.
+     * @return A CompletableFuture giving the response from the server, as a String.
+     *         Exceptional completions as documented in the synchronous post()
+     *         methods are possible.
      * @throws IllegalArgumentException The given endpoint is not a valid URI.
      */
     @Nonnull
-    CompletableFuture<String> postAsync(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters, @Nullable final Map<String, ContentBody> content)
-            throws IllegalArgumentException {
+    CompletableFuture<String> postAsync(@Nonnull final String endpoint, @Nullable final Map<String, String> parameters,
+            @Nullable final Map<String, ContentBody> content) throws IllegalArgumentException {
         try {
             return executeAsync(buildPostRequest(endpoint, parameters, content), HttpStatus.SC_CREATED);
         } catch (IOException ex) {
@@ -819,7 +977,9 @@ class RESTClient implements Closeable {
         }
     }
 
-    //endregion post(endpoint, data, files), postAsync(endpoint, data, files)
+    // endregion post(endpoint, data, files), postAsync(endpoint, data, files)
 
-    //endregion HTTP operations: get(endpoint), getAsync(endpoint), delete(endpoint), deleteAsync(endpoint), post(endpoint, data, files), postAsync(endpoint, data, files)
+    // endregion HTTP operations: get(endpoint), getAsync(endpoint),
+    // delete(endpoint), deleteAsync(endpoint), post(endpoint, data, files),
+    // postAsync(endpoint, data, files)
 }

@@ -11,10 +11,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Internal methods that validate common parameters, and throw IllegalArgumentExceptions if invalid. */
+/**
+ * Internal methods that validate common parameters, and throw
+ * IllegalArgumentExceptions if invalid.
+ */
 class Validation {
 
-    //region validateAccountId, validateAuthToken
+    // region validateAccountId, validateAuthToken
 
     static void validateAccountId(@Nullable final String accountId) {
         if (accountId == null) {
@@ -34,9 +37,9 @@ class Validation {
         }
     }
 
-    //endregion validateAccountId, validateAuthToken
+    // endregion validateAccountId, validateAuthToken
 
-    //region validateIdentifier
+    // region validateIdentifier
 
     private static final int minimumIdentifierLength = 1;
     private static final int maximumIdentifierLength = 1024;
@@ -47,40 +50,42 @@ class Validation {
         }
 
         if (identifier.length() < minimumIdentifierLength) {
-            throw new IllegalArgumentException(String.format("`identifier` must have at least %d characters", minimumIdentifierLength));
+            throw new IllegalArgumentException(
+                    String.format("`identifier` must have at least %d characters", minimumIdentifierLength));
         }
 
         if (identifier.length() > maximumIdentifierLength) {
-            throw new IllegalArgumentException(String.format("`identifier` must have at most %d characters", maximumIdentifierLength));
+            throw new IllegalArgumentException(
+                    String.format("`identifier` must have at most %d characters", maximumIdentifierLength));
         }
 
         for (int i = 0; i < identifier.length(); ++i) {
             final char c = identifier.charAt(i);
-            if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9') && (c != '-' && c != '.' && c != '_')) {
-                throw new IllegalArgumentException("`identifier` can only contain ASCII letters, numbers, and the characters \"-._\"");
+            if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && (c < '0' || c > '9')
+                    && (c != '-' && c != '.' && c != '_')) {
+                throw new IllegalArgumentException(
+                        "`identifier` can only contain ASCII letters, numbers, and the characters \"-._\"");
             }
         }
     }
 
-    //endregion validateIdentifier
+    // endregion validateIdentifier
 
-    //region validateFileType
+    // region validateFileType
 
     /** An ordered list of the API's supported file extensions. */
     @Nonnull
     private static final List<String> allowedFileTypes = Arrays.asList(
-        // PDFs
-        "pdf",
-        // Word documents
-        "docx", "docm", "doc", "rtf",
-        // PowerPoint presentations
-        "pptx", "pptm", "ppt"
-    );
+            // PDFs
+            "pdf",
+            // Word documents
+            "docx", "docm", "doc", "rtf",
+            // PowerPoint presentations
+            "pptx", "pptm", "ppt");
 
     /** A set of the API's supported file extensions (all lowercase). */
     @Nonnull
     private static final Set<String> allowedLowerCaseFileTypesSet = new HashSet<>(allowedFileTypes);
-
 
     static void validateFileType(@Nullable final String fileType) {
         if (fileType == null) {
@@ -91,15 +96,14 @@ class Validation {
 
         if (!allowedLowerCaseFileTypesSet.contains(lowerCaseFileType)) {
             throw new IllegalArgumentException(
-                String.format("`fileType` must be one of the allowed file types (%s), not \"%s\"",
-                              String.join(", ", allowedFileTypes),
-                              fileType));
+                    String.format("`fileType` must be one of the allowed file types (%s), not \"%s\"",
+                            String.join(", ", allowedFileTypes), fileType));
         }
     }
 
-    //endregion validateFileType
+    // endregion validateFileType
 
-    //region validateSourceURL, validateSourceURI
+    // region validateSourceURL, validateSourceURI
 
     private static final int maximumSourceURLLength = 2048;
 
@@ -125,13 +129,14 @@ class Validation {
         }
 
         if (sourceURI.toString().length() > maximumSourceURLLength) {
-            throw new IllegalArgumentException("`sourceURI` is too long - as a string URL it exceeds the 2048 character limit");
+            throw new IllegalArgumentException(
+                    "`sourceURI` is too long - as a string URL it exceeds the 2048 character limit");
         }
     }
 
-    //endregion validateSourceURL, validateSourceURI
+    // endregion validateSourceURL, validateSourceURI
 
-    //region validateExpires, validateValidUntil
+    // region validateExpires, validateValidUntil
 
     private static void validateInstant(@Nonnull final String parameterName, @Nullable final Instant instant) {
         if (instant == null) {
@@ -163,6 +168,6 @@ class Validation {
         validateInstant("validUntil", validUntil);
     }
 
-    //endregion validateExpires, validateValidUntil
+    // endregion validateExpires, validateValidUntil
 
 }

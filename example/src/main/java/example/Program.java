@@ -26,24 +26,23 @@ public class Program {
 
         System.out.println("Starting the test run");
 
-        try{
+        try {
             RunComparisonInCloud();
             RunComparisonWithSelfHosted();
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println("Failure occured when running the test");
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }
 
-
     private static void RunComparisonWithSelfHosted() throws IOException, InterruptedException, TimeoutException {
-        if(StringNullOrEmpty(SelfHostedBaseUrl))
-        {
+        if (StringNullOrEmpty(SelfHostedBaseUrl)) {
             throw new IllegalArgumentException("To continue, you must specify Self-Hosted base URL");
         }
 
-        // Run this line to ignore SSL certificate validation (but be careful with that, it should NEVER be done in production).
+        // Run this line to ignore SSL certificate validation (but be careful with that,
+        // it should NEVER be done in production).
         SetupIgnoreSSLCheck();
 
         RunTestsCore("SELF-HOSTED", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
@@ -53,14 +52,13 @@ public class Program {
         RunTestsCore("CLOUD", CloudAccountId, CloudAuthToken, KnownURLs.CloudBaseURL);
     }
 
-    private static void RunTestsCore(String label, String accountId, String authToken, String compareServiceBaseUrl) throws IOException, InterruptedException, TimeoutException {
-        if (StringNullOrEmpty(accountId))
-        {
+    private static void RunTestsCore(String label, String accountId, String authToken, String compareServiceBaseUrl)
+            throws IOException, InterruptedException, TimeoutException {
+        if (StringNullOrEmpty(accountId)) {
             throw new IllegalArgumentException("AccountId must be configured to run the tests");
         }
 
-        if (StringNullOrEmpty(authToken))
-        {
+        if (StringNullOrEmpty(authToken)) {
             throw new IllegalArgumentException("AuthToken must be configured to run the tests");
         }
 
@@ -84,17 +82,18 @@ public class Program {
         comparisons.close();
     }
 
-    private static String CreateComparison(String label, Comparisons comparisons, IComparisonCreator comparisonCreator) throws IOException, InterruptedException, TimeoutException {
+    private static String CreateComparison(String label, Comparisons comparisons, IComparisonCreator comparisonCreator)
+            throws IOException, InterruptedException, TimeoutException {
 
         Comparison newComparison = comparisonCreator.CreateComparison(comparisons);
         String newId = newComparison.getIdentifier();
-        System.out.println(String.format("[%s] New comparison: %s, isReady: %b, public url: %s, signed url: %s",
-                label, newId, newComparison.getReady(), comparisons.publicViewerURL(newId), comparisons.signedViewerURL(newId)));
+        System.out.println(String.format("[%s] New comparison: %s, isReady: %b, public url: %s, signed url: %s", label,
+                newId, newComparison.getReady(), comparisons.publicViewerURL(newId),
+                comparisons.signedViewerURL(newId)));
 
         int timeoutCount = 0;
-        while(!newComparison.getReady()){
-            if (timeoutCount > 20)
-            {
+        while (!newComparison.getReady()) {
+            if (timeoutCount > 20) {
                 throw new TimeoutException("Timeout exceeded while waiting for comparison to get ready");
             }
             TimeUnit.SECONDS.sleep(1);
@@ -103,27 +102,29 @@ public class Program {
         }
 
         Comparison comparisonAgain = comparisons.getComparison(newId);
-        System.out.println(String.format("[%s] Retrieved again: %s, isReady: %b, has failed: %b, error message: %s",
-                label, newId, comparisonAgain.getReady(), comparisonAgain.getFailed(), comparisonAgain.getErrorMessage()));
+        System.out.println(
+                String.format("[%s] Retrieved again: %s, isReady: %b, has failed: %b, error message: %s", label, newId,
+                        comparisonAgain.getReady(), comparisonAgain.getFailed(), comparisonAgain.getErrorMessage()));
         return newId;
     }
 
-    private static Boolean StringNullOrEmpty(String x){
+    private static Boolean StringNullOrEmpty(String x) {
         return x == null || x.isEmpty();
     }
 
-    private static void SetupIgnoreSSLCheck(){
+    private static void SetupIgnoreSSLCheck() {
         // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
+
             public void checkClientTrusted(X509Certificate[] certs, String authType) {
             }
+
             public void checkServerTrusted(X509Certificate[] certs, String authType) {
             }
-        }
-        };
+        } };
 
         // Install the all-trusting trust manager
         SSLContext sc = null;
@@ -149,40 +150,32 @@ public class Program {
     }
 }
 
-
-interface IComparisonCreator{
+interface IComparisonCreator {
     Comparison CreateComparison(Comparisons comparisons) throws IOException;
 }
 
-class UrlComparisonCreator implements IComparisonCreator{
+class UrlComparisonCreator implements IComparisonCreator {
 
     @Override
     public Comparison CreateComparison(Comparisons comparisons) throws IOException {
         String identifier = Comparisons.generateIdentifier();
 
         return comparisons.createComparison(
-            Comparisons.Side.create("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
-            Comparisons.Side.create("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf"),
-            identifier,
-            true,
-            Instant.now().plusSeconds(30 * 60)
-        );
+                Comparisons.Side.create("https://api.draftable.com/static/test-documents/paper/left.pdf", "pdf"),
+                Comparisons.Side.create("https://api.draftable.com/static/test-documents/paper/right.pdf", "pdf"),
+                identifier, true, Instant.now().plusSeconds(30 * 60));
     }
 }
 
-class DiskComparisonCreator implements IComparisonCreator{
+class DiskComparisonCreator implements IComparisonCreator {
 
     @Override
     public Comparison CreateComparison(Comparisons comparisons) throws IOException {
         String identifier = Comparisons.generateIdentifier();
 
         // TODO: use proper file paths
-        return comparisons.createComparison(
-            Comparisons.Side.create(new File("C:\\draftable\\testing\\old.pdf")),
-            Comparisons.Side.create(new File("C:\\draftable\\testing\\new.pdf")),
-            identifier,
-            true,
-            Instant.now().plusSeconds(30 * 60)
-        );
+        return comparisons.createComparison(Comparisons.Side.create(new File("C:\\draftable\\testing\\old.pdf")),
+                Comparisons.Side.create(new File("C:\\draftable\\testing\\new.pdf")), identifier, true,
+                Instant.now().plusSeconds(30 * 60));
     }
 }

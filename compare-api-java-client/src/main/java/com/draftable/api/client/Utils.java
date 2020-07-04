@@ -45,7 +45,7 @@ class Utils {
     @Nonnull
     private static String toHexString(@Nonnull final byte[] bytes) {
         final StringBuilder builder = new StringBuilder();
-        for(byte b : bytes) {
+        for (byte b : bytes) {
             builder.append(hexCharacters[(b >> 4) & 0xF]).append(hexCharacters[b & 0xF]);
         }
         return builder.toString();
@@ -61,14 +61,16 @@ class Utils {
             // This should never happen.
             throw new RuntimeException(ex);
         } catch (InvalidKeyException ex) {
-            // This should never occur - this is when we've passed invalid parameter has been passed for the secret key.
+            // This should never occur - this is when we've passed invalid parameter has
+            // been passed for the secret key.
             // We'll throw a description exception anyway.
             throw new RuntimeException("Invalid auth token provided - unable to generate signature.", ex);
         }
     }
 
     @Nonnull
-    static String getViewerURLSignature(@Nonnull final String accountId, @Nonnull final String authToken, @Nonnull final String identifier, Instant validUntil) {
+    static String getViewerURLSignature(@Nonnull final String accountId, @Nonnull final String authToken,
+            @Nonnull final String identifier, Instant validUntil) {
         Validation.validateAccountId(accountId);
         Validation.validateAuthToken(authToken);
         Validation.validateIdentifier(identifier);
@@ -76,20 +78,19 @@ class Utils {
 
         // First we create the policy object, which is as follows:
         // [
-        //    account_id (string),
-        //    identifier (string),
-        //    valid_until (number)
+        // account_id (string),
+        // identifier (string),
+        // valid_until (number)
         // ]
         //
-        // Then, we serialize it as JSON, with no spaces, to get the policy that we'll sign.
+        // Then, we serialize it as JSON, with no spaces, to get the policy that we'll
+        // sign.
 
-        final String policyJSON = new JSONArray()
-            .put(accountId)
-            .put(identifier)
-            .put(validUntil.getEpochSecond())
-            .toString();
+        final String policyJSON = new JSONArray().put(accountId).put(identifier).put(validUntil.getEpochSecond())
+                .toString();
 
-        // The signature is the SHA-256 HMAC (hash-based message authentication code) of the JSON policy, using our auth token as the secret key. It's given as hex.
+        // The signature is the SHA-256 HMAC (hash-based message authentication code) of
+        // the JSON policy, using our auth token as the secret key. It's given as hex.
         return toHexString(SHA256HMAC(authToken, policyJSON));
     }
 }
