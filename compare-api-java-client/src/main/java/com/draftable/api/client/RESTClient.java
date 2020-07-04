@@ -62,13 +62,13 @@ class RESTClient implements Closeable {
     }
 
     static class HTTP400BadRequestException extends ClientException {
-        HTTP400BadRequestException(@Nullable final String details) {
+        HTTP400BadRequestException(@Nonnull final String details) {
             super(details);
         }
     }
 
     static class HTTPInvalidAuthenticationException extends ClientException {
-        HTTPInvalidAuthenticationException(@Nullable final String details) {
+        HTTPInvalidAuthenticationException(@Nonnull final String details) {
             super(details);
         }
     }
