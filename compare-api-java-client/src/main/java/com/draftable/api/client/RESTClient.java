@@ -75,7 +75,7 @@ class RESTClient implements Closeable {
 
     static class UnknownResponseException extends ClientException {
         UnknownResponseException(final int statusCode, @Nullable final String details) {
-            super(String.format("Unknown response with status code '%d':\n%s", statusCode, details));
+            super(String.format("Unknown response with status code '%d':%n%s", statusCode, details));
         }
     }
 
