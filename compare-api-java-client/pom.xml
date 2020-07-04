@@ -62,6 +62,11 @@
         <jdk-version-short>8</jdk-version-short>
         <jdk-version>1.${jdk-version-short}</jdk-version>
 
+        <!-- Compiler options -->
+        <maven.compiler.failonWarning>true</maven.compiler.failonWarning>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
+
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
