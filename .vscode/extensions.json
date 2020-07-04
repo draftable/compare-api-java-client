@@ -3,6 +3,7 @@
         "davidanson.vscode-markdownlint",
         "dotjoshjohnson.xml",
         "editorconfig.editorconfig",
-        "vscjava.vscode-java-pack"
+        "vscjava.vscode-java-pack",
+        "yzhang.markdown-all-in-one"
     ]
 }

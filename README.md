@@ -5,6 +5,20 @@ A thin Java client for the [Draftable API](https://draftable.com/rest-api) which
 
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other reference material.
 
+- [Requirements](#requirements)
+- [Getting started](#getting-started)
+- [API reference](#api-reference)
+  - [Design notes](#design-notes)
+  - [Initializing the client](#initializing-the-client)
+  - [Retrieving comparisons](#retrieving-comparisons)
+  - [Deleting comparisons](#deleting-comparisons)
+  - [Creating comparisons](#creating-comparisons)
+  - [Displaying comparisons](#displaying-comparisons)
+  - [Utility methods](#utility-methods)
+- [Other information](#other-information)
+  - [Network & proxy configuration](#network--proxy-configuration)
+  - [Self-signed certificates](#self-signed-certificates)
+
 Requirements
 ------------
 
