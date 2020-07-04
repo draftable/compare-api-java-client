@@ -551,13 +551,13 @@ class RESTClient implements Closeable {
             builder.setCharset(Charsets.UTF_8);
 
             if (parameters != null) {
-                for (final String key : parameters.keySet()) {
-                    builder.addTextBody(key, parameters.get(key));
+                for (final Map.Entry<String, String> entry : parameters.entrySet()) {
+                    builder.addTextBody(entry.getKey(), entry.getValue());
                 }
             }
 
-            for (final String key : content.keySet()) {
-                builder.addPart(key, content.get(key));
+            for (final Map.Entry<String, ContentBody> entry : content.entrySet()) {
+                builder.addPart(entry.getKey(), entry.getValue());
             }
 
             // Unfortunately we can't use the MultipartEntityBuilder's entity straight out
