@@ -75,6 +75,7 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <modernizer-maven-plugin.version>2.1.0</modernizer-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -114,6 +115,28 @@
 
     <build>
         <plugins>
+            <!--
+                SpotBugs Maven Plugin
+                https://spotbugs.github.io/spotbugs-maven-plugin/
+            -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-maven-plugin.version}</version>
+                <configuration>
+                    <effort>max</effort>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!--
                 Apache Maven JAR Plugin
                 https://maven.apache.org/plugins/maven-jar-plugin/

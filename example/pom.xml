@@ -24,6 +24,7 @@
         <!-- Plugin versions -->
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <modernizer-maven-plugin.version>2.1.0</modernizer-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -36,6 +37,28 @@
 
     <build>
         <plugins>
+            <!--
+                SpotBugs Maven Plugin
+                https://spotbugs.github.io/spotbugs-maven-plugin/
+            -->
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-maven-plugin.version}</version>
+                <configuration>
+                    <effort>max</effort>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!--
                 Modernizer Maven Plugin
                 https://github.com/gaul/modernizer-maven-plugin
