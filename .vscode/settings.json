@@ -1,7 +1,9 @@
 {
     // File paths to language mappings
     "files.associations": {
-        // Eclipse preferences
+        // Eclipse configs
+        ".classpath": "xml",
+        ".project": "xml",
         "*.prefs": "properties"
     },
 
