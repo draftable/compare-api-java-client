@@ -7,146 +7,157 @@ import com.draftable.api.client.KnownURLs;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class Program {
+    // Cloud API credentials
+    private static final String CloudAccountId = "";
+    private static final String CloudAuthToken = "";
 
-    // TODO, fill these fields with proper values
-    private static String CloudAccountId = "";
-    private static String CloudAuthToken = "";
-    private static String SelfHostedAccountId = "";
-    private static String SelfHostedAuthToken = "";
-    private static String SelfHostedBaseUrl = "";
+    // Self-hosted API credentials
+    private static final String SelfHostedAccountId = "";
+    private static final String SelfHostedAuthToken = "";
+    private static final String SelfHostedBaseUrl = "";
 
     public static void main(String[] args) {
-
-        System.out.println("Starting the test run");
+        System.out.println("Starting the test run ...");
 
         try {
             RunComparisonInCloud();
             RunComparisonWithSelfHosted();
         } catch (Exception e) {
-            System.out.println("Failure occured when running the test");
+            System.out.println("Failure occurred during test run:");
             System.out.println(e.getMessage());
             e.printStackTrace();
         }
-    }
 
-    private static void RunComparisonWithSelfHosted() throws IOException, InterruptedException, TimeoutException {
-        if (StringNullOrEmpty(SelfHostedBaseUrl)) {
-            throw new IllegalArgumentException("To continue, you must specify Self-Hosted base URL");
-        }
-
-        // Run this line to ignore SSL certificate validation (but be careful with that,
-        // it should NEVER be done in production).
-        SetupIgnoreSSLCheck();
-
-        RunTestsCore("SELF-HOSTED", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
+        System.out.println("Finished the test run.");
     }
 
     private static void RunComparisonInCloud() throws IOException, InterruptedException, TimeoutException {
         RunTestsCore("CLOUD", CloudAccountId, CloudAuthToken, KnownURLs.CloudBaseURL);
     }
 
-    private static void RunTestsCore(String label, String accountId, String authToken, String compareServiceBaseUrl)
+    private static void RunComparisonWithSelfHosted() throws IOException, InterruptedException, TimeoutException {
+        // Disable certificate & hostname validation.
+        //
+        // This should *NEVER* be used in production!
+        // SetupIgnoreSSLCheck();
+
+        RunTestsCore("APISH", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
+    }
+
+    private static void RunTestsCore(String label, String accountId, String authToken, String apiUrl)
             throws IOException, InterruptedException, TimeoutException {
-        if (StringNullOrEmpty(accountId)) {
-            throw new IllegalArgumentException("AccountId must be configured to run the tests");
+        if (StringIsNullOrEmpty(accountId)) {
+            throw new IllegalArgumentException("AccountId must be provided.");
         }
 
-        if (StringNullOrEmpty(authToken)) {
-            throw new IllegalArgumentException("AuthToken must be configured to run the tests");
+        if (StringIsNullOrEmpty(authToken)) {
+            throw new IllegalArgumentException("AuthToken must be provided.");
         }
 
-        Comparisons comparisons = new Comparisons(accountId, authToken, compareServiceBaseUrl);
+        if (StringIsNullOrEmpty(apiUrl)) {
+            throw new IllegalArgumentException("ApiUrl must be provided.");
+        }
 
-        List<Comparison> list = comparisons.getAllComparisons();
-        int count1 = list.size();
-        System.out.println(String.format("[%s] Comparisons count: %d", label, count1));
+        Comparisons comparisons = new Comparisons(accountId, authToken, apiUrl);
 
+        List<Comparison> comparisonsList = comparisons.getAllComparisons();
+        System.out.println(String.format("[%s] Existing comparisons: %d", label, comparisonsList.size()));
+
+        System.out.println(String.format("[%s] Creating comparison from URLs ...", label));
         String comparisonId1 = CreateComparison(label, comparisons, new UrlComparisonCreator());
+
+        System.out.println(String.format("[%s] Creating comparison from files ...", label));
         String comparisonId2 = CreateComparison(label, comparisons, new DiskComparisonCreator());
 
-        int count2 = comparisons.getAllComparisons().size();
-        System.out.println(String.format("[%s] Comparisons count: %d", label, count2));
-
         comparisons.deleteComparison(comparisonId1);
+        System.out.println(String.format("[%s] Deleted comparison with ID: %s", label, comparisonId1));
         comparisons.deleteComparison(comparisonId2);
-        int count3 = comparisons.getAllComparisons().size();
-        System.out.println(String.format("[%s] After delete, count: %d", label, count3));
+        System.out.println(String.format("[%s] Deleted comparison with ID: %s", label, comparisonId2));
 
         comparisons.close();
     }
 
     private static String CreateComparison(String label, Comparisons comparisons, IComparisonCreator comparisonCreator)
             throws IOException, InterruptedException, TimeoutException {
+        String indent = String.join("", Collections.nCopies(label.length() + 2, " "));
 
-        Comparison newComparison = comparisonCreator.CreateComparison(comparisons);
-        String newId = newComparison.getIdentifier();
-        System.out.println(String.format("[%s] New comparison: %s, isReady: %b, public url: %s, signed url: %s", label,
-                newId, newComparison.getReady(), comparisons.publicViewerURL(newId),
-                comparisons.signedViewerURL(newId)));
+        Comparison comparison = comparisonCreator.CreateComparison(comparisons);
+        String comparisonId = comparison.getIdentifier();
 
-        int timeoutCount = 0;
-        while (!newComparison.getReady()) {
-            if (timeoutCount > 20) {
-                throw new TimeoutException("Timeout exceeded while waiting for comparison to get ready");
+        System.out.println(String.format("%s ID: %s", indent, comparisonId));
+        System.out.println(String.format("%s Public URL: %s", indent, comparisons.publicViewerURL(comparisonId)));
+        System.out.println(String.format("%s Signed URL: %s", indent, comparisons.signedViewerURL(comparisonId)));
+
+        System.out.print(String.format("%s Waiting for comparison ..", indent));
+        int timeoutSecs = 0;
+        do {
+            if (timeoutSecs > 20) {
+                System.out.println(" timeout!");
+                throw new TimeoutException("Timeout exceeded while waiting for comparison.");
             }
+
+            timeoutSecs++;
             TimeUnit.SECONDS.sleep(1);
-            newComparison = comparisons.getComparison(newId);
-            timeoutCount++;
+            System.out.print(".");
+            comparison = comparisons.getComparison(comparisonId);
+        } while (!comparison.getReady());
+        System.out.println(" ready.");
+
+        if (comparison.getFailed()) {
+            System.out.println(
+                    String.format("%s Comparison failed with message: %s", indent, comparison.getErrorMessage()));
+        } else {
+            System.out.println(String.format("%s Comparison succeeded!", indent));
         }
 
-        Comparison comparisonAgain = comparisons.getComparison(newId);
-        System.out.println(
-                String.format("[%s] Retrieved again: %s, isReady: %b, has failed: %b, error message: %s", label, newId,
-                        comparisonAgain.getReady(), comparisonAgain.getFailed(), comparisonAgain.getErrorMessage()));
-        return newId;
+        return comparisonId;
     }
 
-    private static Boolean StringNullOrEmpty(String x) {
-        return x == null || x.isEmpty();
+    private static Boolean StringIsNullOrEmpty(String string) {
+        return string == null || string.isEmpty();
     }
 
     private static void SetupIgnoreSSLCheck() {
-        // Create a trust manager that does not validate certificate chains
+        // Create a TrustManager which performs no validation
         TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            public X509Certificate[] getAcceptedIssuers() {
                 return null;
             }
 
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {
             }
 
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
             }
         } };
 
-        // Install the all-trusting trust manager
-        SSLContext sc = null;
+        // Install the TrustManager for HTTPS connections
         try {
-            sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        // Create all-trusting host name verifier
-        HostnameVerifier allHostsValid = new HostnameVerifier() {
+        // Create a HostnameVerifier which always succeeds
+        HostnameVerifier trustAllHosts = new HostnameVerifier() {
             public boolean verify(String hostname, SSLSession session) {
                 return true;
             }
         };
 
-        // Install the all-trusting host verifier
-        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        // Install the HostnameVerifier for HTTPS connections
+        HttpsURLConnection.setDefaultHostnameVerifier(trustAllHosts);
     }
 }
 
@@ -155,7 +166,6 @@ interface IComparisonCreator {
 }
 
 class UrlComparisonCreator implements IComparisonCreator {
-
     @Override
     public Comparison CreateComparison(Comparisons comparisons) throws IOException {
         String identifier = Comparisons.generateIdentifier();
@@ -168,12 +178,11 @@ class UrlComparisonCreator implements IComparisonCreator {
 }
 
 class DiskComparisonCreator implements IComparisonCreator {
-
     @Override
     public Comparison CreateComparison(Comparisons comparisons) throws IOException {
         String identifier = Comparisons.generateIdentifier();
 
-        // TODO: use proper file paths
+        // TODO: Include test documents as resources & fix file paths
         return comparisons.createComparison(Comparisons.Side.create(new File("C:\\draftable\\testing\\old.pdf")),
                 Comparisons.Side.create(new File("C:\\draftable\\testing\\new.pdf")), identifier, true,
                 Instant.now().plusSeconds(30 * 60));
