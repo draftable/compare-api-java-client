@@ -112,7 +112,7 @@ Comparisons comparisons = new Comparisons(
 
 The `Comparisons` instance can be closed by calling `close()`.
 
-For API Self-hosted you may need to [suppress TLS certificate validation](#self-signed-certificates) if the server is using a self-signed certificate (the default).
+For API Self-hosted you will typically need to install a trusted certificate on the server. If the server is using a self-signed certificate (the default) the connection will fail in most configurations due to Java's security checks. For more details see the section on [self-signed certificates](#self-signed-certificates).
 
 ### Retrieving comparisons
 
@@ -321,8 +321,4 @@ The library utilises the Apache `httpclient` and `httpasyncclient` packages for 
 
 ### Self-signed certificates
 
-If connecting to an API Self-hosted endpoint which is using a self-signed certificate (the default) you will need to suppress certificate validation. The recommended approach is to import the self-signed certificate into the _KeyStore_ of your Java installation, which will ensure the Java runtime trusts the certificate.
-
-Alternatively, you can suppress certificate validation by creating customised `X509TrustManager` and `HostnameVerifier` instances. A sample implementation can be found in the example project within the `SetupIgnoreSSLCheck()` method.
-
-Disabling certificate validation in production environments is strongly discouraged as it significantly lowers security. We only recommend using this approach in development environments if configuring a CA signed certificate for API Self-hosted is not possible.
+Unfortunately, suppressing certificate validation for the Java runtime is non-trivial, and at present we do not provide any mechanism for doing so in the library. Until this changes, you will need to ensure a trusted certificate is installed on API Self-hosted instances you will be connecting to.

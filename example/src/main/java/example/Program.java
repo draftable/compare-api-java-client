@@ -4,11 +4,8 @@ import com.draftable.api.client.Comparison;
 import com.draftable.api.client.Comparisons;
 import com.draftable.api.client.KnownURLs;
 
-import javax.net.ssl.*;
 import java.io.File;
 import java.io.IOException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -45,11 +42,6 @@ public class Program {
     }
 
     private static void RunComparisonWithSelfHosted() throws IOException, InterruptedException, TimeoutException {
-        // Disable certificate & hostname validation.
-        //
-        // This should *NEVER* be used in production!
-        // SetupIgnoreSSLCheck();
-
         RunTestsCore("APISH", SelfHostedAccountId, SelfHostedAuthToken, SelfHostedBaseUrl);
     }
 
@@ -124,40 +116,6 @@ public class Program {
 
     private static Boolean StringIsNullOrEmpty(String string) {
         return string == null || string.isEmpty();
-    }
-
-    private static void SetupIgnoreSSLCheck() {
-        // Create a TrustManager which performs no validation
-        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {
-            }
-
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {
-            }
-        } };
-
-        // Install the TrustManager for HTTPS connections
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Create a HostnameVerifier which always succeeds
-        HostnameVerifier trustAllHosts = new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
-
-        // Install the HostnameVerifier for HTTPS connections
-        HttpsURLConnection.setDefaultHostnameVerifier(trustAllHosts);
     }
 }
 
