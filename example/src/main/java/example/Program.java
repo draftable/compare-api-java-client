@@ -23,10 +23,11 @@ public class Program {
     private static final String SelfHostedBaseUrl = "";
 
     public static void main(String[] args) {
-        System.out.println("Starting the test run ...");
+        System.out.println(String.format("Starting the test run ...%n"));
 
         try {
             RunComparisonInCloud();
+            System.out.println();
             RunComparisonWithSelfHosted();
         } catch (Exception e) {
             System.out.println("Failure occurred during test run:");
@@ -34,7 +35,7 @@ public class Program {
             e.printStackTrace();
         }
 
-        System.out.println("Finished the test run.");
+        System.out.println(String.format("%nFinished the test run."));
     }
 
     private static void RunComparisonInCloud() throws IOException, InterruptedException, TimeoutException {
