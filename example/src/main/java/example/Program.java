@@ -3,6 +3,7 @@ package example;
 import com.draftable.api.client.Comparison;
 import com.draftable.api.client.Comparisons;
 import com.draftable.api.client.KnownURLs;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.File;
 import java.io.IOException;
@@ -138,6 +139,7 @@ class UrlComparisonCreator implements IComparisonCreator {
 
 class DiskComparisonCreator implements IComparisonCreator {
     @Override
+    @SuppressFBWarnings
     public Comparison CreateComparison(Comparisons comparisons) throws IOException {
         String identifier = Comparisons.generateIdentifier();
 
