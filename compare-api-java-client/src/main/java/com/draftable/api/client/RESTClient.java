@@ -10,6 +10,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -24,10 +27,14 @@ import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.nio.client.HttpAsyncClient;
+import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -115,12 +122,55 @@ class RESTClient implements Closeable {
 
     @Nonnull
     private static CloseableHttpClient createClient() {
-        return HttpClients.createSystem();
+        CloseableHttpClient client = null;
+
+        String allowSelfSignedCerts = System.getProperty("draftable.allowSelfSignedCerts", "0");
+        if (allowSelfSignedCerts.equals("1") || allowSelfSignedCerts.equals("true")) {
+            System.err.println("[!] Creating insecure HttpClient ...");
+
+            SSLContext sslCtx = null;
+            SSLConnectionSocketFactory sslCsf = null;
+            HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+
+            try {
+                sslCtx = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build();
+                sslCsf = new SSLConnectionSocketFactory(sslCtx, allowAllHosts);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+
+            client = HttpClients.custom().setSSLSocketFactory(sslCsf).build();
+        } else {
+            client = HttpClients.createSystem();
+        }
+
+        return client;
     }
 
     @Nonnull
     private static CloseableHttpAsyncClient createAsyncClient() {
-        CloseableHttpAsyncClient asyncClient = HttpAsyncClients.createSystem();
+        CloseableHttpAsyncClient asyncClient = null;
+
+        String allowSelfSignedCerts = System.getProperty("draftable.allowSelfSignedCerts", "0");
+        if (allowSelfSignedCerts.equals("1") || allowSelfSignedCerts.equals("true")) {
+            System.err.println("[!] Creating insecure HttpAsyncClient ...");
+
+            SSLContext sslCtx = null;
+            SSLIOSessionStrategy sslIoss = null;
+            HostnameVerifier allowAllHosts = new NoopHostnameVerifier();
+
+            try {
+                sslCtx = SSLContextBuilder.create().loadTrustMaterial(new TrustSelfSignedStrategy()).build();
+                sslIoss = new SSLIOSessionStrategy(sslCtx, allowAllHosts);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+
+            asyncClient = HttpAsyncClients.custom().setSSLStrategy(sslIoss).build();
+        } else {
+            asyncClient = HttpAsyncClients.createSystem();
+        }
+
         asyncClient.start();
         return asyncClient;
     }

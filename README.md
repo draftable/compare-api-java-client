@@ -112,7 +112,7 @@ Comparisons comparisons = new Comparisons(
 
 The `Comparisons` instance can be closed by calling `close()`.
 
-For API Self-hosted you will typically need to install a trusted certificate on the server. If the server is using a self-signed certificate (the default) the connection will fail in most configurations due to Java's security checks. For more details see the section on [self-signed certificates](#self-signed-certificates).
+For API Self-hosted you may need to [suppress TLS certificate validation](#self-signed-certificates) if the server is using a self-signed certificate (the default).
 
 ### Retrieving comparisons
 
@@ -321,4 +321,10 @@ The library utilises the Apache `httpclient` and `httpasyncclient` packages for 
 
 ### Self-signed certificates
 
-Unfortunately, suppressing certificate validation for the Java runtime is non-trivial, and at present we do not provide any mechanism for doing so in the library. Until this changes, you will need to ensure a trusted certificate is installed on API Self-hosted instances you will be connecting to.
+If connecting to an API Self-hosted endpoint which is using a self-signed certificate (the default) you will need to suppress certificate validation. The library supports disabling validation for self-signed certificates and associated hostname validation via a Java system property: `draftable.allowSelfSignedCerts`.
+
+Setting this property to `1` or `true` will enable the capability and print a warning to `stderr`. Java system properties can be easily set when launching the runtime with the `-D` parameter. For example: `java -Ddraftable.allowSelfSignedCerts=1 ...`.
+
+Note this capability only applies to requests initiated by the client library. Certificate and hostname validation will not be impacted for requests made by other libraries.
+
+Setting this system property in production environments is strongly discouraged as it significantly lowers security. We only recommend setting this system property in development environments if configuring a CA signed certificate for API Self-hosted is not possible.
