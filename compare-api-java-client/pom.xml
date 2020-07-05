@@ -5,6 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.draftable.api.client</groupId>
+        <artifactId>draftable</artifactId>
+        <version>1-SNAPSHOT</version>
+    </parent>
+
     <groupId>com.draftable.api.client</groupId>
     <artifactId>draftable-compare-api</artifactId>
     <version>1.1.0-SNAPSHOT</version>
@@ -14,70 +20,6 @@
     <url>https://github.com/draftable/compare-api-java-client</url>
     <inceptionYear>2017</inceptionYear>
 
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>https://github.com/draftable/compare-api-java-client/blob/stable/LICENSE</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>Draftable</name>
-        <url>https://draftable.com</url>
-    </organization>
-
-    <developers>
-        <developer>
-            <id>draftable</id>
-            <name>Draftable</name>
-            <email>contact@draftable.com</email>
-            <organization>Draftable</organization>
-            <organizationUrl>https://draftable.com</organizationUrl>
-        </developer>
-    </developers>
-
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/draftable/compare-api-java-client/issues</url>
-    </issueManagement>
-
-    <scm>
-        <connection>scm:git:https://github.com/draftable/compare-api-java-client.git</connection>
-        <developerConnection>scm:git:https://github.com/draftable/compare-api-java-client.git</developerConnection>
-        <url>https://github.com/draftable/compare-api-java-client</url>
-    </scm>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <!-- Minimum supported JDK -->
-        <jdk-version-short>8</jdk-version-short>
-        <jdk-version>1.${jdk-version-short}</jdk-version>
-
-        <!-- Compiler options -->
-        <maven.compiler.failonWarning>true</maven.compiler.failonWarning>
-        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-        <maven.compiler.showWarnings>true</maven.compiler.showWarnings>
-
-        <!-- Plugin versions -->
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <modernizer-maven-plugin.version>2.1.0</modernizer-maven-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-        <spotbugs-maven-plugin.version>4.0.4</spotbugs-maven-plugin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.spotbugs</groupId>
@@ -85,27 +27,32 @@
             <version>4.0.6</version>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>net.jcip</groupId>
             <artifactId>jcip-annotations</artifactId>
             <version>1.0</version>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpasyncclient</artifactId>
             <version>4.1.4</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.12</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.12</version>
         </dependency>
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -115,195 +62,41 @@
 
     <build>
         <plugins>
-            <!--
-                SpotBugs Maven Plugin
-                https://spotbugs.github.io/spotbugs-maven-plugin/
-            -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs-maven-plugin.version}</version>
-                <configuration>
-                    <effort>max</effort>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>spotbugs</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!--
-                Apache Maven JAR Plugin
-                https://maven.apache.org/plugins/maven-jar-plugin/
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin.version}</version>
-                <configuration>
-                    <!--
-                        Apache Maven Archiver
-                        https://maven.apache.org/shared/maven-archiver/
-                    -->
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <!--
-                Modernizer Maven Plugin
-                https://github.com/gaul/modernizer-maven-plugin
-            -->
             <plugin>
                 <groupId>org.gaul</groupId>
                 <artifactId>modernizer-maven-plugin</artifactId>
-                <version>${modernizer-maven-plugin.version}</version>
-                <configuration>
-                    <javaVersion>${jdk-version}</javaVersion>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>modernizer</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>modernizer</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
-            <!--
-                Configuring Your Project for Deployment
-                https://help.sonatype.com/repomanager2/staging-releases/configuring-your-project-for-deployment
-            -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>${nexus-staging-maven-plugin.version}</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <id>jdk-8-minus</id>
-            <activation>
-                <jdk>(,1.8]</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <!--
-                        Apache Maven Compiler Plugin
-                        https://maven.apache.org/plugins/maven-compiler-plugin/
-                    -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven-compiler-plugin.version}</version>
-                        <configuration>
-                            <source>${jdk-version}</source>
-                            <target>${jdk-version}</target>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>jdk-9-plus</id>
-            <activation>
-                <jdk>[1.9,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <!--
-                        Apache Maven Compiler Plugin
-                        https://maven.apache.org/plugins/maven-compiler-plugin/
-                    -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>${maven-compiler-plugin.version}</version>
-                        <configuration>
-                            <release>${jdk-version-short}</release>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
             <id>release</id>
             <build>
                 <plugins>
-                    <!--
-                        Apache Maven Source Plugin
-                        https://maven.apache.org/plugins/maven-source-plugin/
-                    -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!--
-                        Apache Maven Javadoc Plugin
-                        https://maven.apache.org/plugins/maven-javadoc-plugin/
-                    -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <!--
-                        Apache Maven GPG Plugin
-                        https://maven.apache.org/plugins/maven-gpg-plugin/
-                    -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
