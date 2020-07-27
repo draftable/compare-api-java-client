@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1.1.1
+------
+
+- Fixed incorrect parent POM reference & published the parent POM
+
 v1.1.0
 ------
 
