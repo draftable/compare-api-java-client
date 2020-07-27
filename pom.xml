@@ -11,6 +11,7 @@
     <packaging>pom</packaging>
 
     <name>Draftable</name>
+    <description>Client libraries for the Draftable document comparison API</description>
     <url>https://draftable.com</url>
     <inceptionYear>2013</inceptionYear>
 
