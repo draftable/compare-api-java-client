@@ -37,17 +37,23 @@ public class Comparisons implements Closeable {
         @Nonnull
         final String apiBase;
 
-        @Nonnull
-        final String comparisons;
+        @Nonnull final String comparisons;
+        @Nonnull final String exports;
 
         public URLs(@Nonnull String apiBase) {
             this.apiBase = apiBase;
             this.comparisons = this.apiBase + "/comparisons";
+            this.exports = this.apiBase + "/exports";
         }
 
         @Nonnull
         String comparison(@Nonnull String identifier) {
             return comparisons + "/" + identifier;
+        }
+
+        @Nonnull
+        String export(@Nonnull String identifier) {
+            return exports + "/" + identifier;
         }
 
         @Nonnull
@@ -198,6 +204,62 @@ public class Comparisons implements Closeable {
 
     // region Methods - getAllComparisons[Async], getComparison[Async],
     // deleteComparison[Async], createComparison[Async]
+    //region Exports
+
+    @Nonnull
+    public Export getExport(@Nonnull String identifier) throws ComparisonNotFoundException, IOException, InvalidAuthenticationException, UnknownErrorException {
+        Validation.validateIdentifier(identifier);
+        try {
+            return exportFromJSONObject(new JSONObject(client.get(urls.export(identifier))));
+        } catch (RESTClient.HTTP404NotFoundException ex) {
+            throw new ComparisonNotFoundException(accountId, identifier);
+        } catch (IOException ex) {
+            throw ex;
+        } catch (RESTClient.HTTPInvalidAuthenticationException ex) {
+            throw new InvalidAuthenticationException(ex.getMessage());
+        } catch (Throwable ex) {
+            throw new UnknownErrorException(ex);
+        }
+    }
+
+    @Nonnull
+    public Export createExport(@Nonnull String comparisonId, @Nonnull String kind)
+        throws BadRequestException, IOException, InvalidAuthenticationException, UnknownErrorException {
+
+        Map<String, String> postParameters = new HashMap<String, String>();
+        postParameters.put("comparison", comparisonId);
+        postParameters.put("kind", kind);
+
+
+        try {
+            String response = client.post(urls.comparisons, postParameters, new HashMap<String, ContentBody>());
+            return exportFromJSONObject(new JSONObject(response));
+        } catch (RESTClient.HTTP400BadRequestException ex) {
+            throw new BadRequestException(ex.getMessage());
+        } catch (IOException ex) {
+            throw ex;
+        } catch (RESTClient.HTTPInvalidAuthenticationException ex) {
+            throw new InvalidAuthenticationException(ex.getMessage());
+        } catch (Throwable ex) {
+            throw new UnknownErrorException(ex);
+        }
+    }
+
+    @Nonnull
+    private static Export exportFromJSONObject(@Nonnull JSONObject exportJson) throws JSONException {
+        return new Export(
+            exportJson.getString("identifier"),
+            exportJson.getString("comparison"),
+            exportJson.getString("url"),
+            exportJson.getString("kind"),
+            exportJson.getBoolean("ready"),
+            exportJson.getBoolean("failed")
+        );
+    }
+
+    //endregion Exports
+
+    //region Methods - getAllComparisons[Async], getComparison[Async], deleteComparison[Async], createComparison[Async]
 
     // region Private: comparisonFromJSONResponse(responseString),
     // comparisonListFromJSONResponse(responseString)
