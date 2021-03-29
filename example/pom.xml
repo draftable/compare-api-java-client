@@ -24,7 +24,12 @@
         <dependency>
             <groupId>com.draftable.api.client</groupId>
             <artifactId>draftable-compare-api</artifactId>
-            <version>[1.0.0,)</version>
+            <!--
+                Versions prior to v1.1.1 reference an unpublished parent POM
+                which will result in dependency resolution failures when the
+                broken releases are within the version requirement range.
+            -->
+            <version>[1.1.1,)</version>
         </dependency>
 
         <dependency>
