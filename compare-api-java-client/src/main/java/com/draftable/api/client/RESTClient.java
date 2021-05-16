@@ -38,7 +38,7 @@ import javax.net.ssl.SSLContext;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -293,7 +293,7 @@ class RESTClient implements Closeable {
         if (responseBytes == null) {
             return null;
         }
-        return new String(responseBytes, Charset.forName("UTF-8"));
+        return new String(responseBytes, StandardCharsets.UTF_8);
     }
 
     @Nullable
@@ -351,9 +351,9 @@ class RESTClient implements Closeable {
 
         setupRequestHeaders(request);
 
-        HttpClient client = getClient();
+        HttpClient httpClient = getClient();
         try {
-            HttpResponse response = client.execute(getHostForRequest(request), request);
+            HttpResponse response = httpClient.execute(getHostForRequest(request), request);
             return consumeResponse(response, expectedStatusCode);
         } finally {
             request.releaseConnection();
@@ -899,7 +899,7 @@ class RESTClient implements Closeable {
     @Nonnull
     CompletableFuture<Void> deleteAsync(@Nonnull final URI endpoint) {
         // Execute, then consume the result.
-        return executeAsync(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT).thenApply(result -> (Void) null);
+        return executeAsync(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT).thenApply(result -> null);
     }
 
     /**
@@ -912,7 +912,7 @@ class RESTClient implements Closeable {
     @Nonnull
     CompletableFuture<Void> deleteAsync(@Nonnull final String endpoint) throws IllegalArgumentException {
         // Execute, then consume the result.
-        return executeAsync(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT).thenApply(result -> (Void) null);
+        return executeAsync(buildDeleteRequest(endpoint), HttpStatus.SC_NO_CONTENT).thenApply(result -> null);
     }
 
     // endregion delete(endpoint), deleteAsync(endpoint)
