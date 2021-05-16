@@ -10,10 +10,12 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.Random;
+import java.security.SecureRandom;
 
 /** Internal utility methods. */
 class Utils {
+    private static final SecureRandom random = new SecureRandom();
+
     private Utils() {
         throw new AssertionError("`Utils` should never be instantiated");
     }
@@ -29,7 +31,6 @@ class Utils {
 
     @Nonnull
     static String getRandomString(@Nonnull final CharSequence charset, final int length) {
-        final Random random = new Random();
         final StringBuilder builder = new StringBuilder();
         final int chars = charset.length();
         for (int i = 0; i < length; ++i) {
