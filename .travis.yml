@@ -20,8 +20,8 @@ jobs:
         - PATH=$JAVA_HOME/bin:$PATH
     - name: 'OpenJDK 11'
       jdk: openjdk11
-    - name: 'OpenJDK 14'
-      jdk: openjdk14
+    - name: 'OpenJDK 16'
+      jdk: openjdk16
 
 script:
   - mvn -B verify
