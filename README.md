@@ -322,7 +322,7 @@ Other information
 
 ### Network & proxy configuration
 
-The library utilises the Apache `httpclient` and `httpasyncclient` packages for performing HTTP requests, which respect configured system properties pertaining to network configuration. The full list of consulted system properties can be found in the [HttpClientBuilder class](https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html) documentation.
+The library utilises the Apache `httpclient` and `httpasyncclient` packages for performing HTTP requests, which respect configured system properties pertaining to network configuration. The full list of consulted system properties can be found in the [HttpClientBuilder class](https://hc.apache.org/httpcomponents-client-4.5.x/current/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html) documentation.
 
 ### Self-signed certificates
 
