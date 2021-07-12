@@ -3,8 +3,11 @@ Draftable Compare API - Java Client Library
 
 [![maven](https://img.shields.io/maven-central/v/com.draftable.api.client/draftable-compare-api)](https://search.maven.org/artifact/com.draftable.api.client/draftable-compare-api)
 [![javadoc](https://javadoc.io/badge2/com.draftable.api.client/draftable-compare-api/javadoc.svg)](https://javadoc.io/doc/com.draftable.api.client/draftable-compare-api)
-[![travis](https://travis-ci.com/draftable/compare-api-java-client.svg?branch=stable)](https://travis-ci.com/draftable/compare-api-java-client)
 [![license](https://img.shields.io/github/license/draftable/compare-api-java-client)](https://choosealicense.com/licenses/mit/)
+
+[![travis](https://travis-ci.com/draftable/compare-api-java-client.svg?branch=stable)](https://travis-ci.com/draftable/compare-api-java-client)
+
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/draftable/compare-api-java-client)
 
 A thin Java client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
