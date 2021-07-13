@@ -324,6 +324,17 @@ Other information
 
 The library utilises the Apache `httpclient` and `httpasyncclient` packages for performing HTTP requests, which respect configured system properties pertaining to network configuration. The full list of consulted system properties can be found in the [HttpClientBuilder class](https://hc.apache.org/httpcomponents-client-4.5.x/current/httpclient/apidocs/org/apache/http/impl/client/HttpClientBuilder.html) documentation.
 
+Basic configuration for usage of a network proxy typically entails setting the following properties:
+
+| Property name         | Description                                                   | Example          |
+| --------------------- | ------------------------------------------------------------- | ---------------- |
+| `https.proxyHost`     | IP address or DNS hostname of proxy for HTTPS connections     | `proxy.corp.net` |
+| `https.proxyPort`     | HTTPS port of proxy for HTTPS connections (defaults to `443`) | `8443`           |
+| `https.proxyUser`     | Username when authenticating to the proxy using basic auth    | `myuser`         |
+| `https.proxyPassword` | Passsword when authenticating to the proxy using basic auth   | `mypass`         |
+
+The above properties also have `http` equivalents used when making plain HTTP connections. The Draftable API only permits HTTPS by default, so these options are not relevant for most deployments. The above list of properties is not comprehensive and only serves as a starting point for performing basic proxy configuration.
+
 ### Self-signed certificates
 
 If connecting to an API Self-hosted endpoint which is using a self-signed certificate (the default) you will need to suppress certificate validation. The library supports disabling validation for self-signed certificates and associated hostname validation via a Java system property: `draftable.allowSelfSignedCerts`.
