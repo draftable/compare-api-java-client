@@ -74,6 +74,7 @@
 
         <!-- Plugin versions -->
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.0.0</maven-enforcer-plugin.version>
@@ -81,7 +82,10 @@
         <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+        <maven-site-plugin.version>3.9.1</maven-site-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <modernizer-maven-plugin.version>2.2.0</modernizer-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <spotbugs-maven-plugin.version>4.2.3</spotbugs-maven-plugin.version>
@@ -108,6 +112,16 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!--
+                    Apache Maven Clean Plugin
+                    https://maven.apache.org/plugins/maven-clean-plugin/
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${maven-clean-plugin.version}</version>
                 </plugin>
 
                 <!--
@@ -228,6 +242,26 @@
                 </plugin>
 
                 <!--
+                    Apache Maven Resources Plugin
+                    https://maven.apache.org/plugins/maven-resources-plugin/
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
+                </plugin>
+
+                <!--
+                    Apache Maven Site Plugin
+                    https://maven.apache.org/plugins/maven-site-plugin/
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven-site-plugin.version}</version>
+                </plugin>
+
+                <!--
                     Apache Maven Source Plugin
                     https://maven.apache.org/plugins/maven-source-plugin/
                 -->
@@ -243,6 +277,16 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!--
+                    Apache Maven Surefire Plugin
+                    https://maven.apache.org/plugins/maven-surefire-plugin/
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
 
                 <!--
