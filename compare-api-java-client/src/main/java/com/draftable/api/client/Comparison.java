@@ -200,10 +200,10 @@ public final class Comparison {
         this.left = left;
         this.right = right;
         this.isPublic = isPublic;
-        this.creationTime = creationTime;
-        this.expiryTime = expiryTime;
+        this.creationTime =  creationTime.plusSeconds(0);
+        this.expiryTime = expiryTime != null ? expiryTime.plusSeconds(0) : null;
         this.ready = ready;
-        this.readyTime = readyTime;
+        this.readyTime = readyTime != null ? readyTime.plusSeconds(0) : null;
         this.failed = failed;
         this.errorMessage = errorMessage;
     }
@@ -260,7 +260,7 @@ public final class Comparison {
      */
     @Nonnull
     public final Instant getCreationTime() {
-        return creationTime;
+        return creationTime.plusSeconds(0);
     }
 
     /**
@@ -270,7 +270,7 @@ public final class Comparison {
      */
     @Nullable
     public final Instant getExpiryTime() {
-        return expiryTime;
+        return expiryTime != null ? expiryTime.plusSeconds(0) : null;
     }
 
     /**
@@ -289,7 +289,7 @@ public final class Comparison {
      */
     @Nullable
     public final Instant getReadyTime() {
-        return readyTime;
+        return readyTime != null ? readyTime.plusSeconds(0) : null;
     }
 
     /**
