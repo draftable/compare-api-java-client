@@ -83,6 +83,7 @@
         <modernizer-maven-plugin.version>2.2.0</modernizer-maven-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <spotbugs-maven-plugin.version>4.2.3</spotbugs-maven-plugin.version>
+        <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
     </properties>
 
     <build>
@@ -265,6 +266,19 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!--
+                    Versions Maven Plugin
+                    https://www.mojohaus.org/versions-maven-plugin/
+                -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions-maven-plugin.version}</version>
+                    <configuration>
+                        <generateBackupPoms>false</generateBackupPoms>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
