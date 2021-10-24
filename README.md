@@ -5,7 +5,7 @@ Draftable Compare API - Java Client Library
 [![javadoc](https://javadoc.io/badge2/com.draftable.api.client/draftable-compare-api/javadoc.svg)](https://javadoc.io/doc/com.draftable.api.client/draftable-compare-api)
 [![license](https://img.shields.io/github/license/draftable/compare-api-java-client)](https://choosealicense.com/licenses/mit/)
 
-[![travis](https://travis-ci.com/draftable/compare-api-java-client.svg?branch=stable)](https://travis-ci.com/draftable/compare-api-java-client)
+[![travis](https://api.travis-ci.com/draftable/compare-api-java-client.svg?branch=stable)](https://app.travis-ci.com/github/draftable/compare-api-java-client)
 
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/draftable/compare-api-java-client)
 
