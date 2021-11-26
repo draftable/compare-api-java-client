@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -206,6 +207,15 @@ public class Comparisons implements Closeable {
     // deleteComparison[Async], createComparison[Async]
     //region Exports
 
+    /**
+     * Gets an existing export
+     * @param identifier Export identifier (note that this is different from comparison identifier).
+     * @return The object giving metadata about the existing export.
+     * @throws ComparisonNotFoundException
+     * @throws IOException
+     * @throws InvalidAuthenticationException
+     * @throws UnknownErrorException
+     */
     @Nonnull
     public Export getExport(@Nonnull String identifier) throws ComparisonNotFoundException, IOException, InvalidAuthenticationException, UnknownErrorException {
         Validation.validateIdentifier(identifier);
@@ -222,17 +232,28 @@ public class Comparisons implements Closeable {
         }
     }
 
+    /**
+     * Creates a new export of given kind for given comparison
+     * @param comparisonId The unique identifier of the comparison to export
+     * @param exportKind Export kind. Supported values: single_page, combined, left, right.
+     * @param includeCoverPage Relevant only for combined comparison, indicates whether it should include a cover page
+     * @return The object giving metadata about the newly created export.
+     * @throws BadRequestException
+     * @throws IOException
+     * @throws InvalidAuthenticationException
+     * @throws UnknownErrorException
+     */
     @Nonnull
-    public Export createExport(@Nonnull String comparisonId, @Nonnull String kind)
+    public Export createExport(@Nonnull String comparisonId, @Nonnull ExportKind exportKind, boolean includeCoverPage)
         throws BadRequestException, IOException, InvalidAuthenticationException, UnknownErrorException {
 
         Map<String, String> postParameters = new HashMap<String, String>();
         postParameters.put("comparison", comparisonId);
-        postParameters.put("kind", kind);
-
+        postParameters.put("kind", exportKind.name().toLowerCase(Locale.ROOT));
+        postParameters.put("include_cover_page", Boolean.toString(includeCoverPage));
 
         try {
-            String response = client.post(urls.comparisons, postParameters, new HashMap<String, ContentBody>());
+            String response = client.post(urls.exports, postParameters, new HashMap<String, ContentBody>());
             return exportFromJSONObject(new JSONObject(response));
         } catch (RESTClient.HTTP400BadRequestException ex) {
             throw new BadRequestException(ex.getMessage());
@@ -246,15 +267,29 @@ public class Comparisons implements Closeable {
     }
 
     @Nonnull
+    public Export createExport(@Nonnull String comparisonId, @Nonnull ExportKind exportKind)
+        throws BadRequestException, IOException, InvalidAuthenticationException, UnknownErrorException {
+        return createExport(comparisonId, exportKind, true);
+    }
+
+    @Nonnull
     private static Export exportFromJSONObject(@Nonnull JSONObject exportJson) throws JSONException {
         return new Export(
             exportJson.getString("identifier"),
             exportJson.getString("comparison"),
-            exportJson.getString("url"),
-            exportJson.getString("kind"),
+            GetNullableString(exportJson, "url"),
+            ExportKind.valueOf(exportJson.getString("kind").toUpperCase(Locale.ROOT)),
             exportJson.getBoolean("ready"),
-            exportJson.getBoolean("failed")
+            exportJson.getBoolean("failed"),
+            GetNullableString(exportJson, "errorMessage")
         );
+    }
+
+    private static String GetNullableString(@Nonnull JSONObject jsonObject, String key){
+        if(jsonObject.isNull(key)){
+            return null;
+        }
+        return jsonObject.getString(key);
     }
 
     //endregion Exports

@@ -23,6 +23,9 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
   - [Creating comparisons](#creating-comparisons)
   - [Displaying comparisons](#displaying-comparisons)
   - [Utility methods](#utility-methods)
+- [Comparison exports](#comparison-exports)
+  - [Creating export](#creating-export)
+  - [Retrieving export](#retrieving-export)
 - [Other information](#other-information)
   - [Network & proxy configuration](#network--proxy-configuration)
   - [Self-signed certificates](#self-signed-certificates)
@@ -316,6 +319,36 @@ System.out.println(String.format("Viewer URL (expires in 1 hour): %s", viewerURL
 
 - `generateIdentifier()`
   Generates a random unique comparison identifier
+
+Comparison exports
+-----------------
+
+### Creating export
+
+- `createExport(String comparisonId, ExportKind exportKind, boolean includeCoverPage)`
+  Returns an Export instance representing the newly created export. This method needs the following parameters:
+  - `comparisonId` - identifier of comparison, for which we run the export
+  - `exportKind` - kind of the export we intend to run. Following values are supported here:
+    - `LEFT` - content of the left comparison side, with deletions highlights applied
+    - `RIGHT` - content of the right comparison side, with insertions highlights applied
+    - `COMBINED` - content of left and right document, placed side by side
+    - `SIGLE_PAGE` - comparison content in single page mode.
+  - `includeCoverPage` - relevant only for combined comparison, indicates whether it should include a cover page.
+
+- There can exist multiple exports of the same type, created for the same comparison.
+- Class `Export` represents a single export. It has the following fields:
+  - `identifier` - Identifier of the export itself (note that it is different from the comparison ID).
+  - `comparison` - Identifier of the comparison used for running this export.
+  - `url` - Download url of the export document
+  - `kind` - Export kind. Supported values: single_page, combined, left, right.
+  - `ready` - Indicates if processing of the export request has completed.
+  - `failed` - Indicates if export has failed
+  - `errorMessage` - Error message for failed exports. This is set to null for successful exports.
+
+### Retrieving export
+
+- `getExport(String identifier)`
+  Retrieves existing export by its identifier. Note that the export returned here may not be ready yet.
 
 Other information
 -----------------
