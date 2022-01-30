@@ -81,7 +81,9 @@ class Validation {
             // Word documents
             "docx", "docm", "doc", "rtf",
             // PowerPoint presentations
-            "pptx", "pptm", "ppt");
+            "pptx", "pptm", "ppt",
+            // Text
+            "txt");
 
     /** A set of the API's supported file extensions (all lowercase). */
     @Nonnull
