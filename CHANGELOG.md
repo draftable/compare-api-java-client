@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v1.1.2
+------
+
+- Number of dependencies updated
+- Support for Export
+- Support for text files comparison
+
 v1.1.1
 ------
 

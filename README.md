@@ -333,7 +333,7 @@ Comparison exports
     - `LEFT` - content of the left comparison side, with deletions highlights applied
     - `RIGHT` - content of the right comparison side, with insertions highlights applied
     - `COMBINED` - content of left and right document, placed side by side
-    - `SIGLE_PAGE` - comparison content in single page mode.
+    - `SINGLE_PAGE` - comparison content in single page mode.
   - `includeCoverPage` - relevant only for combined comparison, indicates whether it should include a cover page.
 
 - There can exist multiple exports of the same type, created for the same comparison.
