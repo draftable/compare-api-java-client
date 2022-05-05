@@ -41,7 +41,7 @@ Getting started
 
 - Create a free [API account](https://api.draftable.com)
 - Retrieve your [credentials](https://api.draftable.com/account/credentials)
-- Add the [draftable-compare-api](https://search.maven.org/search?q=a:draftable-compare-api) library
+- Add the [draftable-compare-api](https://search.maven.org/search?q=a:draftable-compare-api) library. You can use a build tool of your choice, as well as directly copy the code. Note that _example_ project from our repository is built using Maven.
 - Instantiate a client
 
 ```java
