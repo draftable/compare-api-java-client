@@ -337,6 +337,7 @@
                     <version>${spotbugs-maven-plugin.version}</version>
                     <configuration>
                         <effort>max</effort>
+                        <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
