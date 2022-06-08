@@ -22,10 +22,9 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
   - [Deleting comparisons](#deleting-comparisons)
   - [Creating comparisons](#creating-comparisons)
   - [Displaying comparisons](#displaying-comparisons)
+  - [Retrieving exports](#retrieving-exports)
+  - [Creating exports](#creating-exports)
   - [Utility methods](#utility-methods)
-- [Comparison exports](#comparison-exports)
-  - [Creating export](#creating-export)
-  - [Retrieving export](#retrieving-export)
 - [Other information](#other-information)
   - [Network & proxy configuration](#network--proxy-configuration)
   - [Self-signed certificates](#self-signed-certificates)
@@ -41,7 +40,7 @@ Getting started
 
 - Create a free [API account](https://api.draftable.com)
 - Retrieve your [credentials](https://api.draftable.com/account/credentials)
-- Add the [draftable-compare-api](https://search.maven.org/search?q=a:draftable-compare-api) library. You can use a build tool of your choice, as well as directly copy the code. Note that _example_ project from our repository is built using Maven.
+- Add the [draftable-compare-api](https://search.maven.org/search?q=a:draftable-compare-api) library
 - Instantiate a client
 
 ```java
@@ -154,7 +153,7 @@ If a `Comparison` is _ready_ (i.e. it has been processed) the following addition
 
 - `getReadyTime(): Instant`  
   Time in UTC the comparison became ready
-- `getFailed(): boolean`  
+- `getFailed(): Boolean`  
   Indicates if comparison processing failed
 - `getErrorMessage(): String` _(only present if `failed`)_  
   Reason processing of the comparison failed
@@ -316,40 +315,65 @@ String viewerURL = comparisons.signedViewerURL(identifier, Duration.ofHours(1), 
 System.out.println(String.format("Viewer URL (expires in 1 hour): %s", viewerURL));
 ```
 
+### Retrieving exports
+
+- `getExport(String identifier)`  
+  Returns the specified `Export` or raises a `Comparisons.ComparisonNotFoundException` exception if the specified export identifier does not exist.
+
+`Export` objects have the folowing getter methods:
+
+- `getIdentifier(): String`  
+  The unique identifier of the export
+- `getComparison(): String`  
+  The unique identifier of the exported comparison
+- `getKind(): ExportKind`  
+  The kind of export:
+  - `LEFT`  
+    Left side of the comparison with deletions highlighted.
+  - `RIGHT`  
+    Right side of the comparison with insertions highlighted.
+  - `COMBINED`  
+    Left and right sides of the comparison side-by-side.
+  - `SINGLE_PAGE`  
+    Left and right sides of the comparison as a single page.
+- `isReady(): boolean`  
+  Indicates if the export is ready to download
+
+If a `Export` is _ready_ (i.e. it has been processed) the following additional getter methods are meaningful:
+
+- `getFailed(): Boolean`  
+  Indicates if export processing failed
+- `getUrl(): String` _(only present if not `failed`)_  
+  The URL for downloading the export
+- `getErrorMessage(): String` _(only present if `failed`)_  
+  Reason processing of the export failed
+
+### Creating exports
+
+- `createExport(String comparisonId, ExportKind exportKind, boolean includeCoverPage)`  
+  Returns a `Export` representing the newly created export.
+
+`createExport` accepts the following arguments:
+
+- `comparisonId`  
+  Identifier of the comparison to export.
+- `exportKind`  
+  The kind of export:
+  - `LEFT`  
+    Left side of the comparison with deletions highlighted.
+  - `RIGHT`  
+    Right side of the comparison with insertions highlighted.
+  - `COMBINED`  
+    Left and right sides of the comparison side-by-side.
+  - `SINGLE_PAGE`  
+    Left and right sides of the comparison as a single page.
+- `includeCoverPage`  
+  Indicates if a cover page should be included. Only applies to `COMBINED` export kind.
+
 ### Utility methods
 
 - `generateIdentifier()`
   Generates a random unique comparison identifier
-
-Comparison exports
------------------
-
-### Creating export
-
-- `createExport(String comparisonId, ExportKind exportKind, boolean includeCoverPage)`
-  Returns an Export instance representing the newly created export. This method needs the following parameters:
-  - `comparisonId` - identifier of comparison, for which we run the export
-  - `exportKind` - kind of the export we intend to run. Following values are supported here:
-    - `LEFT` - content of the left comparison side, with deletions highlights applied
-    - `RIGHT` - content of the right comparison side, with insertions highlights applied
-    - `COMBINED` - content of left and right document, placed side by side
-    - `SINGLE_PAGE` - comparison content in single page mode.
-  - `includeCoverPage` - relevant only for combined comparison, indicates whether it should include a cover page.
-
-- There can exist multiple exports of the same type, created for the same comparison.
-- Class `Export` represents a single export. It has the following fields:
-  - `identifier` - Identifier of the export itself (note that it is different from the comparison ID).
-  - `comparison` - Identifier of the comparison used for running this export.
-  - `url` - Download url of the export document
-  - `kind` - Export kind. Supported values: single_page, combined, left, right.
-  - `ready` - Indicates if processing of the export request has completed.
-  - `failed` - Indicates if export has failed
-  - `errorMessage` - Error message for failed exports. This is set to null for successful exports.
-
-### Retrieving export
-
-- `getExport(String identifier)`
-  Retrieves existing export by its identifier. Note that the export returned here may not be ready yet.
 
 Other information
 -----------------
