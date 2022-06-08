@@ -1,12 +1,12 @@
 Changelog
 =========
 
-v1.1.2
+v1.2.0
 ------
 
-- Number of dependencies updated
-- Support for Export
-- Support for text files comparison
+- Added support for comparison exports
+- Added support for plain text comparisons
+- Numerous minor code fixes & tooling improvements
 
 v1.1.1
 ------
