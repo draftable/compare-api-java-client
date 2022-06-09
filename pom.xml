@@ -5,7 +5,7 @@
 
     <groupId>com.draftable.api.client</groupId>
     <artifactId>draftable</artifactId>
-    <version>2-SNAPSHOT</version>
+    <version>3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Draftable</name>
