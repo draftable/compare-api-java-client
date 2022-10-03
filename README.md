@@ -7,8 +7,6 @@ Draftable Compare API - Java Client Library
 
 [![travis](https://api.travis-ci.com/draftable/compare-api-java-client.svg?branch=stable)](https://app.travis-ci.com/github/draftable/compare-api-java-client)
 
-[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/draftable/compare-api-java-client)
-
 A thin Java client for the [Draftable API](https://draftable.com/rest-api) which wraps all available endpoints and handles authentication and signing.
 
 See the [full API documentation](https://api.draftable.com) for an introduction to the API, usage notes, and other reference material.
@@ -28,6 +26,7 @@ See the [full API documentation](https://api.draftable.com) for an introduction 
 - [Other information](#other-information)
   - [Network & proxy configuration](#network--proxy-configuration)
   - [Self-signed certificates](#self-signed-certificates)
+- [License](#license)
 
 Requirements
 ------------
@@ -402,3 +401,8 @@ Setting this property to `1` or `true` will enable the capability and print a wa
 Note this capability only applies to requests initiated by the client library. Certificate and hostname validation will not be impacted for requests made by other libraries.
 
 Setting this system property in production environments is strongly discouraged as it significantly lowers security. We only recommend setting this system property in development environments if configuring a CA signed certificate for API Self-hosted is not possible.
+
+License
+-------
+
+All content is licensed under the terms of [The MIT License](LICENSE).
