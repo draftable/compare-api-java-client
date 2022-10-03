@@ -29,6 +29,11 @@ temp/
 # Build
 *.jar
 
+# Eclipse
+.classpath
+.project
+.settings/
+
 # Java
 *.class
 
