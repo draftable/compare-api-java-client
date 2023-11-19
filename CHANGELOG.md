@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v1.2.1
+------
+
+- Update json dependency to 20230227 (CVE-2022-45688 & CVE-2023-5072)
+- Update all build plugins and optional dependencies
+- Numerous minor code fixes & tooling improvements
+
 v1.2.0
 ------
 
