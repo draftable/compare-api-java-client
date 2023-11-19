@@ -11,6 +11,9 @@
     // See: https://github.com/editorconfig/editorconfig-vscode/issues/153
     "files.trimTrailingWhitespace": false,
 
+    // Enable annotation-based null analysis
+    "java.compile.nullAnalysis.mode":"automatic",
+
     // Automatically update build configuration on changes to build files
     "java.configuration.updateBuildConfiguration": "automatic",
 
