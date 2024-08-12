@@ -1,7 +1,7 @@
 language: java
 
 os: linux
-dist: focal
+dist: jammy
 arch: amd64
 
 cache:
