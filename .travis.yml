@@ -10,7 +10,7 @@ cache:
 
 jobs:
   include:
-    - name: 'OpenJDK 8'
+    - name: OpenJDK 8
       addons:
         apt:
           packages:
@@ -18,11 +18,11 @@ jobs:
       env:
         - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
         - PATH=$JAVA_HOME/bin:$PATH
-    - name: 'OpenJDK 11'
+    - name: OpenJDK 11
       jdk: openjdk11
-    - name: 'OpenJDK 17'
+    - name: OpenJDK 17
       jdk: openjdk17
-    - name: 'OpenJDK 21'
+    - name: OpenJDK 21
       jdk: openjdk21
 
 script:
