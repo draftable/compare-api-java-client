@@ -25,6 +25,14 @@ jobs:
     - name: OpenJDK 21
       jdk: openjdk21
 
+# Travis CI adds additional repositories which have precedence!
+# https://github.com/travis-ci/travis-cookbooks/blob/master/cookbooks/travis_build_environment/files/default/ci_user/maven_user_settings.xml
+before_install:
+  - rm $HOME/.m2/settings.xml
+
+install:
+  - mvn -B -V -DskipTests=true -Dmaven.javadoc.skip=true install
+
 script:
   - mvn -B verify
 
