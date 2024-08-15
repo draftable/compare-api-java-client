@@ -11,7 +11,7 @@
 
     <groupId>com.draftable.api.client</groupId>
     <artifactId>draftable-compare-api</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.2-SNAPSHOT</version>
 
     <name>Draftable Compare API</name>
     <description>Client library for the Draftable document comparison API</description>
