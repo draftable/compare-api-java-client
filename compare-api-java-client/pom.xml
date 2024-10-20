@@ -18,6 +18,11 @@
     <url>https://github.com/draftable/compare-api-java-client</url>
     <inceptionYear>2017</inceptionYear>
 
+    <properties>
+        <!-- Path to the top-level sources directory -->
+        <draftable.basedir>${project.basedir}/../</draftable.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.github.spotbugs</groupId>

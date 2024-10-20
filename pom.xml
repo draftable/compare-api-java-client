@@ -61,6 +61,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Path to the top-level sources directory -->
+        <draftable.basedir>${project.basedir}</draftable.basedir>
+
         <!-- Minimum supported JDK -->
         <jdk-version-short>8</jdk-version-short>
         <jdk-version>1.${jdk-version-short}</jdk-version>
@@ -338,7 +341,7 @@
                     <version>${spotbugs-maven-plugin.version}</version>
                     <configuration>
                         <effort>max</effort>
-                        <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                        <excludeFilterFile>${draftable.basedir}/spotbugs-exclude.xml</excludeFilterFile>
                     </configuration>
                     <executions>
                         <execution>
