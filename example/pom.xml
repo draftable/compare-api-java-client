@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.draftable.api.client</groupId>
         <artifactId>draftable</artifactId>
-        <version>3-SNAPSHOT</version>
+        <version>4-SNAPSHOT</version>
     </parent>
 
     <groupId>example</groupId>
@@ -27,12 +27,7 @@
         <dependency>
             <groupId>com.draftable.api.client</groupId>
             <artifactId>draftable-compare-api</artifactId>
-            <!--
-                Versions prior to v1.1.1 reference an unpublished parent POM
-                which will result in dependency resolution failures when the
-                broken releases are within the version requirement range.
-            -->
-            <version>[1.1.1,)</version>
+            <version>1.2.3-SNAPSHOT</version>
         </dependency>
 
         <dependency>
